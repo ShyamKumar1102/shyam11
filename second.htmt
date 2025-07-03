@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>google form</title>
+        <link rel="stylesheet" href="index.css">
+    </head>
+    <body class="sui>
+        <div class="google form">
+            <h1>Google Form</h1>
+            <form action="#" method="post">
+                <p><label for="name">Name:</label>
+                <input type="text" name="name" placeholder="Your Name"></p>
+                <p><label for="user name">User Name:</label>
+                <input type="text" name="user name" placeholder="User Name"></p>
+                <p><label for="email id">Email Id:</label>
+                <input type="text" name="email id" placeholder="Your Email Id"></p>  
+                <p><label for="password">Password:</label>
+                <input type="text" name="pass word" placeholder="password"></p>
+                <p><label for="mobile no">Mobile No:</label>
+                <input type="tel" name="mobile number" placeholder="Your Mobile Number"></p>
+                <p><label for="address">Address:</label>
+                <input type="text" name="address" placeholder="Your Address"></p>
+                <p><label for="district">District:</label>
+                <input type="text" name="district" placeholder="District Name"></p>
+            </form>
+        </div><hr><br>
+
+
+
+
+
+
+
+
+        <div class="one">
+            <table class="no">
+                <tr>
+                    <th>Name</th>
+                    <th>Matches</th>
+                    <th>Goals</th>
+                    <th>Assists</th>
+                </tr>
+                <tr>
+                    <th class="two">Cristiano Ronaldo</th>
+                    <td>1250</td>
+                    <td>934</td>
+                    <td>257</td>
+                </tr>
+                <tr>
+                    <th class="two">Lionel Messi</th>
+                    <td>1097</td>
+                    <td>859</td>
+                    <td>381</td>
+                </tr>
+                <tr>
+                    <th class="two">Neymar jr</th>
+                    <td>719</td>
+                    <td>439</td>
+                    <td>279</td>
+                </tr>
+                <tr>
+                    <th class="two">Kylian Mbappe</th>
+                    <td>326</td>
+                    <td>178</td>
+                    <td>48</td>
+                </tr>
+                <tr>
+                    <th class="two">Vinicius junior</th>
+                    <td>317</td>
+                    <td>102</td>
+                    <td>78</td>
+                </tr>
+                <tr>
+                    <th class="two">Tony Kroos</th>
+                    <td>832</td>
+                    <td>479</td>
+                    <td>182</td>
+                </tr>
+                <tr>
+                    <th class="two">Kevin De Bruyne</th>
+                    <td>418</td>
+                    <td>245</td>
+                    <td>313</td>
+                </tr>
+                <tr>
+                    <th class="two">Jude Bellingham</th>
+                    <td>224</td>
+                    <td>64</td>
+                    <td>29</td>
+                </tr>
+                <tr>
+                    <th class="two">Robert Lewandowski</th>
+                    <td>672</td>
+                    <td>724</td>
+                    <td>73</td>
+                </tr>
+                <tr>
+                    <th class="two">Karim Benzema</th>
+                    <td>929</td>
+                    <td>477</td>
+                    <td>220</td>
+                </tr>
+
+            </table>
+        </div>
+
+
+
+
+        
+    </body>
+   
+</html>
+
