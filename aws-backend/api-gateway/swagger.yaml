@@ -1,0 +1,431 @@
+openapi: 3.0.0
+info:
+  title: Inventory Management API
+  description: REST API for Inventory Management System
+  version: 1.0.0
+  
+servers:
+  - url: https://api.inventory.example.com/v1
+    description: Production server
+
+paths:
+  # Authentication endpoints
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  minLength: 6
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+        '409':
+          description: User already exists
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+
+  /auth/profile:
+    get:
+      tags:
+        - Authentication
+      summary: Get user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Profile retrieved successfully
+        '401':
+          description: Unauthorized
+
+  # Products endpoints
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Products retrieved successfully
+    post:
+      tags:
+        - Products
+      summary: Create new product
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - category
+                - barcode
+                - quantity
+                - price
+              properties:
+                productId:
+                  type: string
+                name:
+                  type: string
+                category:
+                  type: string
+                  enum: [A, B, C]
+                barcode:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 0
+                price:
+                  type: number
+                  minimum: 0
+      responses:
+        '201':
+          description: Product created successfully
+        '400':
+          description: Invalid input
+        '409':
+          description: Product ID already exists
+
+  /products/{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product retrieved successfully
+        '404':
+          description: Product not found
+    put:
+      tags:
+        - Products
+      summary: Update product
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                category:
+                  type: string
+                  enum: [A, B, C]
+                barcode:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 0
+                price:
+                  type: number
+                  minimum: 0
+      responses:
+        '200':
+          description: Product updated successfully
+        '404':
+          description: Product not found
+    delete:
+      tags:
+        - Products
+      summary: Delete product
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Product deleted successfully
+        '404':
+          description: Product not found
+
+  # Stock endpoints
+  /stock:
+    get:
+      tags:
+        - Stock
+      summary: Get all stock
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Stock retrieved successfully
+    post:
+      tags:
+        - Stock
+      summary: Add stock
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - productId
+                - quantity
+                - location
+              properties:
+                productId:
+                  type: string
+                quantity:
+                  type: integer
+                  minimum: 1
+                location:
+                  type: string
+                supplier:
+                  type: string
+                batchNumber:
+                  type: string
+                expiryDate:
+                  type: string
+                  format: date
+      responses:
+        '201':
+          description: Stock added successfully
+        '400':
+          description: Invalid input
+        '404':
+          description: Product not found
+
+  /stock/{stockId}:
+    put:
+      tags:
+        - Stock
+      summary: Update stock
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: stockId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock updated successfully
+        '404':
+          description: Stock not found
+
+  /stock/{stockId}/dispatch:
+    post:
+      tags:
+        - Stock
+      summary: Dispatch stock
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: stockId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - quantity
+                - orderId
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+                orderId:
+                  type: string
+                customerId:
+                  type: string
+      responses:
+        '200':
+          description: Stock dispatched successfully
+        '400':
+          description: Insufficient stock or invalid input
+        '404':
+          description: Stock not found
+
+  /stock/product/{productId}:
+    get:
+      tags:
+        - Stock
+      summary: Get stock by product ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Stock retrieved successfully
+
+  # Orders/Income endpoints
+  /orders:
+    get:
+      tags:
+        - Orders
+      summary: Get all orders
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Orders retrieved successfully
+    post:
+      tags:
+        - Orders
+      summary: Create new order
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - customerId
+                - items
+              properties:
+                customerId:
+                  type: string
+                customerName:
+                  type: string
+                items:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      itemName:
+                        type: string
+                      quantity:
+                        type: integer
+                      price:
+                        type: number
+                orderValue:
+                  type: number
+      responses:
+        '201':
+          description: Order created successfully
+        '400':
+          description: Invalid input
+
+  /income/summary:
+    get:
+      tags:
+        - Income
+      summary: Get income summary
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Income summary retrieved successfully
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+          example: "Error message"
+
+    Success:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
