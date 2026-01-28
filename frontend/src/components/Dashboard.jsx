@@ -21,7 +21,9 @@ import EditCustomer from './EditCustomer';
 import Supplier from './Supplier';
 import AddSupplier from './AddSupplier';
 import EditSupplier from './EditSupplier';
-
+import Couriers from './Couriers';
+import Shipments from './Shipments';
+import ShipmentHistory from './ShipmentHistory';
 import ErrorBoundary from './ErrorBoundary';
 import '../styles/Dashboard.css';
 
@@ -106,6 +108,9 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/users/suppliers" element={<Supplier />} />
             <Route path="/users/suppliers/add" element={<AddSupplier />} />
             <Route path="/users/suppliers/edit" element={<EditSupplier />} />
+            <Route path="/couriers" element={<Couriers />} />
+            <Route path="/shipments" element={<Shipments />} />
+            <Route path="/shipments/history" element={<ShipmentHistory />} />
 
           </Routes>
         </ErrorBoundary>
