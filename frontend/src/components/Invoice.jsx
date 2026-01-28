@@ -43,13 +43,22 @@ const Invoice = () => {
           <h1>📄 Invoices</h1>
           <p>Manage billing and invoices</p>
         </div>
-        <button 
-          className="btn btn-primary"
-          onClick={() => navigate('/dashboard/billing/invoice/create')}
-        >
-          <Plus size={20} />
-          Create Invoice
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            className="btn btn-secondary"
+            onClick={() => navigate('/dashboard/billing/invoice/create')}
+          >
+            <Plus size={20} />
+            Manual Invoice
+          </button>
+          <button 
+            className="btn btn-primary"
+            onClick={() => navigate('/dashboard/billing/invoice/auto-generate')}
+          >
+            <Plus size={20} />
+            Auto Generate
+          </button>
+        </div>
       </div>
 
       <div className="card">

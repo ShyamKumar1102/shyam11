@@ -1,8 +1,10 @@
 import { useState } from 'react';
-import { Search, Plus, Truck } from 'lucide-react';
+import { Search, Plus, Truck, Edit, Trash2, Eye } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Products.css';
 
 const Couriers = () => {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
 
   return (
@@ -12,7 +14,10 @@ const Couriers = () => {
           <h1>🚚 Manage Couriers</h1>
           <p>Manage courier companies and delivery services</p>
         </div>
-        <button className="btn btn-primary">
+        <button 
+          className="btn btn-primary"
+          onClick={() => navigate('/dashboard/couriers/add')}
+        >
           <Plus size={20} />
           Add Courier
         </button>
@@ -27,6 +32,28 @@ const Couriers = () => {
             <h3>Total Couriers</h3>
             <p className="stat-value">0</p>
             <span className="stat-label">Active courier services</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#d1fae5' }}>
+            <Truck size={24} color="#059669" />
+          </div>
+          <div className="stat-content">
+            <h3>Active Services</h3>
+            <p className="stat-value">0</p>
+            <span className="stat-label">Currently available</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#fef3c7' }}>
+            <Truck size={24} color="#f59e0b" />
+          </div>
+          <div className="stat-content">
+            <h3>Avg Rating</h3>
+            <p className="stat-value">0.0</p>
+            <span className="stat-label">Service quality</span>
           </div>
         </div>
       </div>
@@ -50,7 +77,10 @@ const Couriers = () => {
             <thead>
               <tr>
                 <th>Company Name</th>
-                <th>Contact</th>
+                <th>Contact Person</th>
+                <th>Phone</th>
+                <th>Service Type</th>
+                <th>Pricing</th>
                 <th>Rating</th>
                 <th>Status</th>
                 <th>Actions</th>
@@ -58,7 +88,7 @@ const Couriers = () => {
             </thead>
             <tbody>
               <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '2rem' }}>
+                <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
                   No courier companies found. Add your first courier service.
                 </td>
               </tr>

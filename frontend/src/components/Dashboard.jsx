@@ -15,6 +15,7 @@ import Procurement from './Income';
 import AvailableStocks from './AvailableStocks';
 import Invoice from './Invoice';
 import CreateInvoice from './CreateInvoice';
+import AutoGenerateInvoice from './AutoGenerateInvoice';
 import Customer from './Customer';
 import AddCustomer from './AddCustomer';
 import EditCustomer from './EditCustomer';
@@ -22,6 +23,7 @@ import Supplier from './Supplier';
 import AddSupplier from './AddSupplier';
 import EditSupplier from './EditSupplier';
 import Couriers from './Couriers';
+import AddCourier from './AddCourier';
 import Shipments from './Shipments';
 import ShipmentHistory from './ShipmentHistory';
 import ErrorBoundary from './ErrorBoundary';
@@ -102,6 +104,7 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/income" element={<Procurement />} />
             <Route path="/billing/invoice" element={<Invoice />} />
             <Route path="/billing/invoice/create" element={<CreateInvoice />} />
+            <Route path="/billing/invoice/auto-generate" element={<AutoGenerateInvoice />} />
             <Route path="/users/customers" element={<Customer />} />
             <Route path="/users/customers/add" element={<AddCustomer />} />
             <Route path="/users/customers/edit" element={<EditCustomer />} />
@@ -109,6 +112,7 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/users/suppliers/add" element={<AddSupplier />} />
             <Route path="/users/suppliers/edit" element={<EditSupplier />} />
             <Route path="/couriers" element={<Couriers />} />
+            <Route path="/couriers/add" element={<AddCourier />} />
             <Route path="/shipments" element={<Shipments />} />
             <Route path="/shipments/history" element={<ShipmentHistory />} />
 
