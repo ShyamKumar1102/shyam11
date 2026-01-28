@@ -11,7 +11,7 @@ import AddProduct from './AddProduct';
 import EditProduct from './EditProduct';
 import DispatchStock from './DispatchStock';
 import DispatchHistory from './DispatchHistory';
-import Procurement from './Procurement';
+import Procurement from './Income';
 import AvailableStocks from './AvailableStocks';
 import Invoice from './Invoice';
 import CreateInvoice from './CreateInvoice';
@@ -21,12 +21,7 @@ import EditCustomer from './EditCustomer';
 import Supplier from './Supplier';
 import AddSupplier from './AddSupplier';
 import EditSupplier from './EditSupplier';
-import Couriers from './Couriers';
-import AddCourier from './AddCourier';
-import EditCourier from './EditCourier';
-import Shipments from './Shipments';
-import ShipmentDetails from './ShipmentDetails';
-import ShipmentHistory from './ShipmentHistory';
+
 import ErrorBoundary from './ErrorBoundary';
 import '../styles/Dashboard.css';
 
@@ -111,12 +106,7 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/users/suppliers" element={<Supplier />} />
             <Route path="/users/suppliers/add" element={<AddSupplier />} />
             <Route path="/users/suppliers/edit" element={<EditSupplier />} />
-            <Route path="/couriers" element={<Couriers />} />
-            <Route path="/couriers/add" element={<AddCourier />} />
-            <Route path="/couriers/edit/:id" element={<EditCourier />} />
-            <Route path="/shipments" element={<Shipments />} />
-            <Route path="/shipments/history" element={<ShipmentHistory />} />
-            <Route path="/shipments/view/:id" element={<ShipmentDetails />} />
+
           </Routes>
         </ErrorBoundary>
       </main>
