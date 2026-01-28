@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Package, X, Calendar, User, FileText, Box, CheckCircle, AlertTriangle, Truck } from 'lucide-react';
 import { dispatchService } from '../services/dispatchService';
 import { invoiceService } from '../services/billingService';
-import { customerService } from '../services/customerService';
+import { customerService } from '../services/userService';
 import { stockService } from '../services/productService';
 import { courierService, shipmentService } from '../services/courierService';
 import '../styles/DispatchStock.css';

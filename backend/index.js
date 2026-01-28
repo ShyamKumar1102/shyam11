@@ -9,6 +9,9 @@ const orderRoutes = require('./routes/orders');
 const supplierRoutes = require("./routes/suppliers");
 const customerRoutes = require('./routes/customers');
 const dispatchRoutes = require('./routes/dispatch');
+const invoiceRoutes = require('./routes/invoices');
+const courierRoutes = require('./routes/couriers');
+const shipmentRoutes = require('./routes/shipments');
 
 const app = express();
 const PORT = process.env.PORT || 5001;
@@ -24,6 +27,9 @@ app.use('/api/orders', orderRoutes);
 app.use("/api/suppliers", supplierRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/dispatch', dispatchRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/couriers', courierRoutes);
+app.use('/api/shipments', shipmentRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

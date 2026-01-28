@@ -78,8 +78,8 @@ const tables = [
     name: process.env.INVOICES_TABLE || 'inventory-invoices',
     schema: {
       TableName: process.env.INVOICES_TABLE || 'inventory-invoices',
-      KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
-      AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+      KeySchema: [{ AttributeName: 'invoiceId', KeyType: 'HASH' }],
+      AttributeDefinitions: [{ AttributeName: 'invoiceId', AttributeType: 'S' }],
       ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
     }
   },
@@ -87,6 +87,24 @@ const tables = [
     name: process.env.PURCHASE_ORDERS_TABLE || 'inventory-purchase-orders',
     schema: {
       TableName: process.env.PURCHASE_ORDERS_TABLE || 'inventory-purchase-orders',
+      KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+      AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+      ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+    }
+  },
+  {
+    name: process.env.COURIERS_TABLE || 'inventory-couriers',
+    schema: {
+      TableName: process.env.COURIERS_TABLE || 'inventory-couriers',
+      KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
+      AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
+      ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
+    }
+  },
+  {
+    name: process.env.SHIPMENTS_TABLE || 'inventory-shipments',
+    schema: {
+      TableName: process.env.SHIPMENTS_TABLE || 'inventory-shipments',
       KeySchema: [{ AttributeName: 'id', KeyType: 'HASH' }],
       AttributeDefinitions: [{ AttributeName: 'id', AttributeType: 'S' }],
       ProvisionedThroughput: { ReadCapacityUnits: 5, WriteCapacityUnits: 5 }
