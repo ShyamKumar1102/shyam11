@@ -42,10 +42,15 @@ const AutoGenerateInvoice = () => {
     try {
       const result = await customerService.getAllCustomers();
       if (result.success) {
+        console.log('Customers fetched:', result.data);
         setCustomers(result.data || []);
+      } else {
+        console.error('Failed to fetch customers:', result.error);
+        setCustomers([]);
       }
     } catch (error) {
       console.error('Error fetching customers:', error);
+      setCustomers([]);
     }
   };
 
@@ -61,7 +66,7 @@ const AutoGenerateInvoice = () => {
   };
 
   const handleCustomerChange = (customerId) => {
-    const customer = customers.find(c => c.customerId === customerId);
+    const customer = customers.find(c => (c.customerId || c.id) === customerId);
     setFormData({
       ...formData,
       customerId,
@@ -70,10 +75,10 @@ const AutoGenerateInvoice = () => {
   };
 
   const handleProductSelect = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p.id || p.productId) === productId);
     if (product && !formData.selectedProducts.find(p => p.id === productId)) {
       const newProduct = {
-        id: product.id,
+        id: product.id || product.productId,
         name: product.name,
         price: product.price || 0,
         quantity: 1
@@ -251,11 +256,15 @@ const AutoGenerateInvoice = () => {
                     required
                   >
                     <option value="">Select Customer</option>
-                    {customers.map(customer => (
-                      <option key={customer.customerId} value={customer.customerId}>
-                        {customer.customerId} - {customer.name}
-                      </option>
-                    ))}
+                    {customers.length === 0 ? (
+                      <option disabled>No customers available - Add customer first</option>
+                    ) : (
+                      customers.map(customer => (
+                        <option key={customer.customerId || customer.id} value={customer.customerId || customer.id}>
+                          {(customer.customerId || customer.id)} - {customer.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div className="form-group">
@@ -284,11 +293,15 @@ const AutoGenerateInvoice = () => {
                     value=""
                   >
                     <option value="">Select Product to Add</option>
-                    {products.map(product => (
-                      <option key={product.id} value={product.id}>
-                        {product.name} - ${product.price || 0}
-                      </option>
-                    ))}
+                    {products.length === 0 ? (
+                      <option disabled>No products available - Add product first</option>
+                    ) : (
+                      products.map(product => (
+                        <option key={product.id || product.productId} value={product.id || product.productId}>
+                          {product.name} - ${product.price || 0}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>

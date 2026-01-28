@@ -30,15 +30,20 @@ const CreateInvoice = () => {
     try {
       const result = await customerService.getAllCustomers();
       if (result.success) {
-        setCustomers(result.data);
+        console.log('Customers fetched:', result.data);
+        setCustomers(result.data || []);
+      } else {
+        console.error('Failed to fetch customers:', result.error);
+        setCustomers([]);
       }
     } catch (error) {
       console.error('Error fetching customers:', error);
+      setCustomers([]);
     }
   };
 
   const handleCustomerChange = (customerId) => {
-    const customer = customers.find(c => c.customerId === customerId);
+    const customer = customers.find(c => (c.customerId || c.id) === customerId);
     setFormData({
       ...formData,
       customerId,
@@ -141,11 +146,15 @@ const CreateInvoice = () => {
                     required
                   >
                     <option value="">Select Customer</option>
-                    {customers.map(customer => (
-                      <option key={customer.customerId} value={customer.customerId}>
-                        {customer.name}
-                      </option>
-                    ))}
+                    {customers.length === 0 ? (
+                      <option disabled>No customers available - Add customer first</option>
+                    ) : (
+                      customers.map(customer => (
+                        <option key={customer.customerId || customer.id} value={customer.customerId || customer.id}>
+                          {customer.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div className="form-group">

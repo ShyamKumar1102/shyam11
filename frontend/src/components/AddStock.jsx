@@ -30,26 +30,36 @@ const AddStock = () => {
     try {
       const result = await productService.getProducts();
       if (result.success) {
+        console.log('Products fetched:', result.data);
         setProducts(result.data || []);
+      } else {
+        console.error('Failed to fetch products:', result.error);
+        setProducts([]);
       }
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]);
     }
   };
 
   const fetchSuppliers = async () => {
     try {
-      const result = await supplierService.getSuppliers();
+      const result = await supplierService.getAllSuppliers();
       if (result.success) {
+        console.log('Suppliers fetched:', result.data);
         setSuppliers(result.data || []);
+      } else {
+        console.error('Failed to fetch suppliers:', result.error);
+        setSuppliers([]);
       }
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+      setSuppliers([]);
     }
   };
 
   const handleProductIdChange = (productId) => {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p.id || p.productId) === productId);
     if (product) {
       setFormData({
         ...formData,
@@ -150,11 +160,15 @@ const AddStock = () => {
                     required
                   >
                     <option value="">Select Product</option>
-                    {products.map((product) => (
-                      <option key={product.id} value={product.id}>
-                        {product.id} - {product.name}
-                      </option>
-                    ))}
+                    {products.length === 0 ? (
+                      <option disabled>No products available - Add product first</option>
+                    ) : (
+                      products.map((product) => (
+                        <option key={product.id || product.productId} value={product.id || product.productId}>
+                          {product.id || product.productId} - {product.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
                 <div className="form-group">
@@ -229,11 +243,15 @@ const AddStock = () => {
                     onChange={(e) => handleSupplierIdChange(e.target.value)}
                   >
                     <option value="">Select Supplier</option>
-                    {suppliers.map((supplier) => (
-                      <option key={supplier.supplierId || supplier.id} value={supplier.supplierId || supplier.id}>
-                        {supplier.supplierId || supplier.id} - {supplier.name}
-                      </option>
-                    ))}
+                    {suppliers.length === 0 ? (
+                      <option disabled>No suppliers available - Add supplier first</option>
+                    ) : (
+                      suppliers.map((supplier) => (
+                        <option key={supplier.supplierId || supplier.id} value={supplier.supplierId || supplier.id}>
+                          {supplier.supplierId || supplier.id} - {supplier.name}
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
               </div>

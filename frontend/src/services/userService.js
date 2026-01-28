@@ -1,7 +1,7 @@
 import api from './api';
 
 export const customerService = {
-  async getCustomers() {
+  async getAllCustomers() {
     try {
       const response = await api.get('/customers');
       return { success: true, data: response.data };
@@ -9,6 +9,10 @@ export const customerService = {
       console.error('Get customers error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch customers' };
     }
+  },
+
+  async getCustomers() {
+    return this.getAllCustomers();
   },
 
   async getCustomer(id) {
@@ -53,7 +57,7 @@ export const customerService = {
 };
 
 export const supplierService = {
-  async getSuppliers() {
+  async getAllSuppliers() {
     try {
       const response = await api.get('/suppliers');
       return { success: true, data: response.data };
@@ -61,6 +65,10 @@ export const supplierService = {
       console.error('Get suppliers error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch suppliers' };
     }
+  },
+
+  async getSuppliers() {
+    return this.getAllSuppliers();
   },
 
   async getSupplier(id) {

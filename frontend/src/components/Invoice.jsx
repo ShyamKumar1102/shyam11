@@ -18,18 +18,23 @@ const Invoice = () => {
     try {
       const result = await invoiceService.getInvoices();
       if (result.success) {
-        setInvoices(result.data);
+        console.log('Invoices fetched:', result.data);
+        setInvoices(result.data || []);
+      } else {
+        console.error('Failed to fetch invoices:', result.error);
+        setInvoices([]);
       }
     } catch (error) {
       console.error('Error fetching invoices:', error);
+      setInvoices([]);
     } finally {
       setLoading(false);
     }
   };
 
   const filteredInvoices = invoices.filter(invoice =>
-    invoice.invoiceId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    invoice.customerName?.toLowerCase().includes(searchTerm.toLowerCase())
+    (invoice.invoiceId || invoice.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (invoice.customerName || '').toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) {
@@ -90,23 +95,23 @@ const Invoice = () => {
             <tbody>
               {filteredInvoices.length > 0 ? (
                 filteredInvoices.map((invoice) => (
-                  <tr key={invoice.invoiceId}>
+                  <tr key={invoice.invoiceId || invoice.id}>
                     <td>
                       <div className="item-info">
                         <FileText size={16} />
-                        <span><strong>{invoice.invoiceId}</strong></span>
+                        <span><strong>{invoice.invoiceId || invoice.id}</strong></span>
                       </div>
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <User size={14} />
-                        {invoice.customerName}
+                        {invoice.customerName || 'N/A'}
                       </div>
                     </td>
                     <td>
                       <div className="date-info">
                         <Calendar size={14} />
-                        {invoice.invoiceDate}
+                        {invoice.invoiceDate || 'N/A'}
                       </div>
                     </td>
                     <td>
@@ -114,7 +119,7 @@ const Invoice = () => {
                     </td>
                     <td>
                       <span className="status-badge success">
-                        {invoice.status || 'Paid'}
+                        {invoice.status || 'Pending'}
                       </span>
                     </td>
                     <td>
@@ -127,7 +132,7 @@ const Invoice = () => {
               ) : (
                 <tr>
                   <td colSpan="6" style={{ textAlign: 'center', padding: '2rem' }}>
-                    No invoices found
+                    {searchTerm ? 'No matching invoices found' : 'No invoices found. Create your first invoice.'}
                   </td>
                 </tr>
               )}

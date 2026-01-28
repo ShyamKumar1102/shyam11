@@ -17,12 +17,15 @@ const DispatchHistory = () => {
     try {
       const result = await dispatchService.getDispatchHistory();
       if (result.success) {
-        setDispatchHistory(result.data);
+        console.log('Dispatch history fetched:', result.data);
+        setDispatchHistory(result.data || []);
       } else {
         console.error('Failed to fetch dispatch history:', result.error);
+        setDispatchHistory([]);
       }
     } catch (error) {
       console.error('Error fetching dispatch history:', error);
+      setDispatchHistory([]);
     } finally {
       setLoading(false);
     }
@@ -30,10 +33,10 @@ const DispatchHistory = () => {
 
   const filteredHistory = dispatchHistory.filter(item => {
     const matchesSearch = 
-      item.itemName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.stockId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.invoiceId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.customerName.toLowerCase().includes(searchTerm.toLowerCase());
+      (item.itemName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.stockId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.invoiceId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (item.customerName || '').toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesFilter = filterStatus === 'all' || item.status === filterStatus;
     
@@ -104,36 +107,36 @@ const DispatchHistory = () => {
               {filteredHistory.length > 0 ? (
                 filteredHistory.map((item) => (
                   <tr key={item.dispatchId || item.id}>
-                    <td><strong>{item.dispatchId || item.id}</strong></td>
-                    <td>{item.stockId}</td>
+                    <td><strong>{item.dispatchId || item.id || 'N/A'}</strong></td>
+                    <td>{item.stockId || 'N/A'}</td>
                     <td>
                       <div className="item-info">
                         <Package size={16} />
-                        <span>{item.itemName}</span>
+                        <span>{item.itemName || 'N/A'}</span>
                       </div>
                     </td>
                     <td>
                       <span className="stock-badge high">
-                        {item.dispatchedQuantity} units
+                        {item.dispatchedQuantity || 0} units
                       </span>
                     </td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <FileText size={14} />
-                        {item.invoiceId}
+                        {item.invoiceId || 'N/A'}
                       </div>
                     </td>
-                    <td>{item.customerId}</td>
+                    <td>{item.customerId || 'N/A'}</td>
                     <td>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <User size={14} />
-                        {item.customerName}
+                        {item.customerName || 'N/A'}
                       </div>
                     </td>
                     <td>
                       <div className="date-info">
                         <Calendar size={14} />
-                        {item.dispatchDate}
+                        {item.dispatchDate || 'N/A'}
                       </div>
                     </td>
                     <td>
@@ -142,7 +145,7 @@ const DispatchHistory = () => {
                         item.status === 'In Transit' ? 'warning' : 
                         'pending'
                       }`}>
-                        {item.status}
+                        {item.status || 'Pending'}
                       </span>
                     </td>
                     <td>{item.notes || '-'}</td>
