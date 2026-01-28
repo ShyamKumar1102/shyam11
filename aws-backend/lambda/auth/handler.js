@@ -6,15 +6,17 @@ const dynamodb = new AWS.DynamoDB.DocumentClient();
 const cognito = new AWS.CognitoIdentityServiceProvider();
 
 const USERS_TABLE = process.env.USERS_TABLE || 'Users';
-const JWT_SECRET = process.env.JWT_SECRET || 'your-jwt-secret';
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';
+const BCRYPT_ROUNDS = 12;
 const USER_POOL_ID = process.env.USER_POOL_ID;
 const CLIENT_ID = process.env.CLIENT_ID;
 
 // CORS headers
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS'
+  'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGINS || '*',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  'Access-Control-Allow-Credentials': 'true'
 };
 
 // Register user
@@ -31,6 +33,31 @@ exports.register = async (event) => {
         body: JSON.stringify({
           success: false,
           error: 'Missing required fields: name, email, password'
+        })
+      };
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          success: false,
+          error: 'Invalid email format'
+        })
+      };
+    }
+
+    // Validate password strength
+    if (password.length < 8) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          success: false,
+          error: 'Password must be at least 8 characters long'
         })
       };
     }
@@ -57,8 +84,8 @@ exports.register = async (event) => {
       };
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // Hash password with higher security
+    const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const userId = `U${Date.now()}`;
     const timestamp = new Date().toISOString();
 
@@ -133,6 +160,19 @@ exports.login = async (event) => {
         body: JSON.stringify({
           success: false,
           error: 'Missing required fields: email, password'
+        })
+      };
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return {
+        statusCode: 400,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          success: false,
+          error: 'Invalid email format'
         })
       };
     }
@@ -239,7 +279,8 @@ exports.login = async (event) => {
 // Verify JWT token middleware
 exports.verifyToken = async (event) => {
   try {
-    const token = event.headers.Authorization?.replace('Bearer ', '');
+    const authHeader = event.headers.Authorization || event.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
 
     if (!token) {
       return {
@@ -293,7 +334,7 @@ exports.verifyToken = async (event) => {
       headers: corsHeaders,
       body: JSON.stringify({
         success: false,
-        error: 'Invalid token'
+        error: 'Invalid or expired token'
       })
     };
   }
@@ -302,7 +343,20 @@ exports.verifyToken = async (event) => {
 // Get user profile
 exports.getProfile = async (event) => {
   try {
-    const token = event.headers.Authorization?.replace('Bearer ', '');
+    const authHeader = event.headers.Authorization || event.headers.authorization;
+    const token = authHeader?.replace('Bearer ', '');
+    
+    if (!token) {
+      return {
+        statusCode: 401,
+        headers: corsHeaders,
+        body: JSON.stringify({
+          success: false,
+          error: 'No token provided'
+        })
+      };
+    }
+    
     const decoded = jwt.verify(token, JWT_SECRET);
 
     const params = {
@@ -336,11 +390,11 @@ exports.getProfile = async (event) => {
   } catch (error) {
     console.error('Error getting profile:', error);
     return {
-      statusCode: 500,
+      statusCode: error.name === 'JsonWebTokenError' ? 401 : 500,
       headers: corsHeaders,
       body: JSON.stringify({
         success: false,
-        error: 'Failed to get profile'
+        error: error.name === 'JsonWebTokenError' ? 'Invalid or expired token' : 'Failed to get profile'
       })
     };
   }
