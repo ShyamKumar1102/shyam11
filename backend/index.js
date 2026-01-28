@@ -14,7 +14,7 @@ const courierRoutes = require('./routes/couriers');
 const shipmentRoutes = require('./routes/shipments');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 8000;
 
 app.use(cors());
 app.use(express.json());
@@ -41,9 +41,10 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Network access: http://192.168.1.10:${PORT}`);
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
-    console.log(`Port ${PORT} is busy, trying port ${PORT + 1}`);
-    server.listen(PORT + 1, '0.0.0.0', () => {
-      console.log(`Server running on port ${PORT + 1}`);
+    const newPort = parseInt(PORT) + 1;
+    console.log(`Port ${PORT} is busy, trying port ${newPort}`);
+    app.listen(newPort, '0.0.0.0', () => {
+      console.log(`Server running on port ${newPort}`);
     });
   } else {
     console.error('Server error:', err);

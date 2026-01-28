@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Package, Hash, DollarSign, Barcode } from 'lucide-react';
 import { productService } from '../services/productService';
 import { generateBarcode } from '../utils/generators';
+import '../styles/Forms.css';
 
 const AddProduct = () => {
   const navigate = useNavigate();

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Package, MapPin, Hash, User } from 'lucide-react';
 import { stockService, productService } from '../services/productService';
 import { supplierService } from '../services/userService';
+import '../styles/Forms.css';
 
 const AddStock = () => {
   const navigate = useNavigate();
