@@ -23,7 +23,7 @@ router.post('/register', async (req, res) => {
     
     const { name, email, password } = req.body;
     
-    if (!name || !email || !password) {
+    if (!name?.trim() || !email?.trim() || !password?.trim()) {
       return res.status(400).json({ error: 'Name, email, and password are required' });
     }
     
@@ -115,7 +115,7 @@ router.post('/login', async (req, res) => {
     
     const { email, password } = req.body;
     
-    if (!email || !password) {
+    if (!email?.trim() || !password?.trim()) {
       return res.status(400).json({ error: 'Email and password are required' });
     }
     
