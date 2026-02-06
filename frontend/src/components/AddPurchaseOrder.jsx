@@ -13,6 +13,7 @@ const AddPurchaseOrder = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [error, setError] = useState(null);
+  const [pageError, setPageError] = useState(null);
   const [formData, setFormData] = useState({
     supplierId: '',
     supplierName: '',
@@ -30,7 +31,12 @@ const AddPurchaseOrder = () => {
   });
 
   useEffect(() => {
-    fetchSuppliers();
+    try {
+      fetchSuppliers();
+    } catch (err) {
+      console.error('Component mount error:', err);
+      setPageError(err.message);
+    }
   }, []);
 
   const fetchSuppliers = async () => {
@@ -124,6 +130,37 @@ const AddPurchaseOrder = () => {
       return updated;
     });
   };
+
+  if (pageError) {
+    return (
+      <div className="page-container">
+        <div className="page-header">
+          <button className="btn-back" onClick={() => navigate('/dashboard/procurement')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
+        </div>
+        <div style={{
+          background: '#fef2f2',
+          border: '2px solid #dc2626',
+          borderRadius: '12px',
+          padding: '24px',
+          margin: '20px',
+          textAlign: 'center'
+        }}>
+          <h3 style={{ color: '#dc2626', marginBottom: '12px' }}>Error Loading Page</h3>
+          <p style={{ color: '#991b1b' }}>{pageError}</p>
+          <button 
+            className="btn btn-primary" 
+            onClick={() => window.location.reload()}
+            style={{ marginTop: '16px' }}
+          >
+            Reload Page
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
