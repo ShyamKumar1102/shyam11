@@ -16,7 +16,7 @@ const purchaseBillRoutes = require('./routes/purchase-bills');
 const purchaseOrderRoutes = require('./routes/purchase-orders');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT || 10000;
 
 app.use(cors({
   origin: true,
