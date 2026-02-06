@@ -31,7 +31,7 @@ const Procurement = () => {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
       const response = await fetch(`${API_URL}/orders`, {
         headers: {
@@ -54,7 +54,7 @@ const Procurement = () => {
 
   const fetchPurchaseOrders = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem('authToken');
       const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
       const response = await fetch(`${API_URL}/purchase-orders`, {
         headers: {

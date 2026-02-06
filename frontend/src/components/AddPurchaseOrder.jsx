@@ -37,9 +37,13 @@ const AddPurchaseOrder = () => {
       const result = await supplierService.getSuppliers();
       if (result.success) {
         setSuppliers(result.data || []);
+      } else {
+        console.error('Failed to fetch suppliers:', result.error);
+        setSuppliers([]);
       }
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+      setSuppliers([]);
     }
   };
 
