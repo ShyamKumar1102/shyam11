@@ -29,7 +29,7 @@ const Sidebar = ({ collapsed, setCollapsed, onLogout, mobileOpen, onMobileClose 
   // Auto-expand submenu based on current route
   useEffect(() => {
     const path = location.pathname;
-    if (path.includes('/overview') || path.includes('/available-stocks') || path.includes('/income')) {
+    if (path.includes('/overview') || path.includes('/available-stocks') || path.includes('/procurement')) {
       setOverviewOpen(true);
     }
     if (path.includes('/products')) {
@@ -62,7 +62,7 @@ const Sidebar = ({ collapsed, setCollapsed, onLogout, mobileOpen, onMobileClose 
       submenu: [
         { title: 'Stock Summary', path: '/dashboard/overview' },
         { title: 'Available Stocks', path: '/dashboard/available-stocks' },
-        { title: 'Procurement', path: '/dashboard/income' }
+        { title: 'Procurement', path: '/dashboard/procurement' }
       ]
     },
     {
@@ -87,7 +87,8 @@ const Sidebar = ({ collapsed, setCollapsed, onLogout, mobileOpen, onMobileClose 
       icon: FileText,
       path: '/dashboard/billing',
       submenu: [
-        { title: 'Invoice', path: '/dashboard/billing/invoice', icon: FileText }
+        { title: 'Invoice', path: '/dashboard/billing/invoice', icon: FileText },
+        { title: 'Purchase Bills', path: '/dashboard/billing/purchase-bills', icon: FileText }
       ]
     },
     {

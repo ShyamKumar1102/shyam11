@@ -8,7 +8,6 @@ const {
   UpdateCommand,
   DeleteCommand
 } = require("@aws-sdk/lib-dynamodb");
-const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -22,49 +21,34 @@ const client = new DynamoDBClient({
 const docClient = DynamoDBDocumentClient.from(client);
 
 // Get all suppliers
-router.get("/", authenticateToken, async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     const data = await docClient.send(
       new ScanCommand({
         TableName: process.env.SUPPLIERS_TABLE
       })
     );
-    res.json(data.Items || []);
+    res.json({ success: true, data: data.Items || [] });
   } catch (err) {
     console.error('Error fetching suppliers:', err);
-    res.status(500).json({ error: "Failed to load suppliers" });
-  }
-});
-
-// Get single supplier
-router.get("/:id", authenticateToken, async (req, res) => {
-  try {
-    const result = await docClient.send(new GetCommand({
-      TableName: process.env.SUPPLIERS_TABLE,
-      Key: { supplierId: req.params.id }
-    }));
-    
-    if (result.Item) {
-      res.json(result.Item);
-    } else {
-      res.status(404).json({ error: 'Supplier not found' });
-    }
-  } catch (err) {
-    console.error('Error fetching supplier:', err);
-    res.status(500).json({ error: 'Failed to fetch supplier' });
+    res.status(500).json({ success: false, error: 'Failed to fetch suppliers' });
   }
 });
 
 // Add supplier
-router.post("/", authenticateToken, async (req, res) => {
+router.post("/", async (req, res) => {
   try {
+    const { supplierId, name, phone, email, address, company, status } = req.body;
+    
     const supplier = {
-      supplierId: `SUP${Date.now()}`,
-      name: req.body.name,
-      phone: req.body.phone,
-      email: req.body.email,
-      address: req.body.address || '',
-      company: req.body.company || '',
+      id: supplierId || `SUP${Date.now()}`,
+      supplierId: supplierId || `SUP${Date.now()}`,
+      name,
+      phone,
+      email,
+      address: address || '',
+      company: company || '',
+      status: status || 'active',
       createdAt: new Date().toISOString()
     };
 
@@ -75,53 +59,10 @@ router.post("/", authenticateToken, async (req, res) => {
       })
     );
 
-    res.status(201).json(supplier);
+    res.status(201).json({ success: true, data: supplier });
   } catch (err) {
     console.error('Error adding supplier:', err);
-    res.status(500).json({ error: "Failed to add supplier" });
-  }
-});
-
-// Update supplier
-router.put("/:id", authenticateToken, async (req, res) => {
-  try {
-    const { name, email, phone, address, company } = req.body;
-    
-    const result = await docClient.send(new UpdateCommand({
-      TableName: process.env.SUPPLIERS_TABLE,
-      Key: { supplierId: req.params.id },
-      UpdateExpression: 'SET #name = :name, email = :email, phone = :phone, address = :address, company = :company, updatedAt = :updatedAt',
-      ExpressionAttributeNames: { '#name': 'name' },
-      ExpressionAttributeValues: {
-        ':name': name,
-        ':email': email,
-        ':phone': phone,
-        ':address': address || '',
-        ':company': company || '',
-        ':updatedAt': new Date().toISOString()
-      },
-      ReturnValues: 'ALL_NEW'
-    }));
-
-    res.json(result.Attributes);
-  } catch (err) {
-    console.error('Error updating supplier:', err);
-    res.status(500).json({ error: 'Failed to update supplier' });
-  }
-});
-
-// Delete supplier
-router.delete("/:id", authenticateToken, async (req, res) => {
-  try {
-    await docClient.send(new DeleteCommand({
-      TableName: process.env.SUPPLIERS_TABLE,
-      Key: { supplierId: req.params.id }
-    }));
-
-    res.json({ message: 'Supplier deleted successfully' });
-  } catch (err) {
-    console.error('Error deleting supplier:', err);
-    res.status(500).json({ error: 'Failed to delete supplier' });
+    res.status(500).json({ success: false, error: 'Failed to add supplier' });
   }
 });
 

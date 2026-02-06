@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, Phone, MapPin, UserCog } from 'lucide-react';
 import { customerService } from '../services/userService';
+import '../styles/Products.css';
 
 const EditCustomer = () => {
   const navigate = useNavigate();

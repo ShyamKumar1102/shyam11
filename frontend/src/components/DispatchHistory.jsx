@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, Search, Package, Calendar, User, FileText, Filter } from 'lucide-react';
 import { dispatchService } from '../services/dispatchService';
+import StatusBadge from './StatusBadge';
+import Badge from './Badge';
 import '../styles/DispatchStock.css';
 
 const DispatchHistory = () => {
@@ -17,14 +19,11 @@ const DispatchHistory = () => {
     try {
       const result = await dispatchService.getDispatchHistory();
       if (result.success) {
-        console.log('Dispatch history fetched:', result.data);
         setDispatchHistory(result.data || []);
       } else {
-        console.error('Failed to fetch dispatch history:', result.error);
         setDispatchHistory([]);
       }
     } catch (error) {
-      console.error('Error fetching dispatch history:', error);
       setDispatchHistory([]);
     } finally {
       setLoading(false);
@@ -107,46 +106,16 @@ const DispatchHistory = () => {
               {filteredHistory.length > 0 ? (
                 filteredHistory.map((item) => (
                   <tr key={item.dispatchId || item.id}>
-                    <td><strong>{item.dispatchId || item.id || 'N/A'}</strong></td>
-                    <td>{item.stockId || 'N/A'}</td>
+                    <td><Badge variant="blue">{item.dispatchId || item.id || 'N/A'}</Badge></td>
+                    <td><Badge variant="gray">{item.stockId || 'N/A'}</Badge></td>
+                    <td><Badge variant="blue">{item.itemName || 'N/A'}</Badge></td>
+                    <td><Badge variant="green">{item.dispatchedQuantity || 0} units</Badge></td>
+                    <td><Badge variant="gray">{item.invoiceId || 'N/A'}</Badge></td>
+                    <td><Badge variant="blue">{item.customerId || 'N/A'}</Badge></td>
+                    <td><Badge variant="gray">{item.customerName || 'N/A'}</Badge></td>
+                    <td><Badge variant="blue">{item.dispatchDate || 'N/A'}</Badge></td>
                     <td>
-                      <div className="item-info">
-                        <Package size={16} />
-                        <span>{item.itemName || 'N/A'}</span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="stock-badge high">
-                        {item.dispatchedQuantity || 0} units
-                      </span>
-                    </td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <FileText size={14} />
-                        {item.invoiceId || 'N/A'}
-                      </div>
-                    </td>
-                    <td>{item.customerId || 'N/A'}</td>
-                    <td>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <User size={14} />
-                        {item.customerName || 'N/A'}
-                      </div>
-                    </td>
-                    <td>
-                      <div className="date-info">
-                        <Calendar size={14} />
-                        {item.dispatchDate || 'N/A'}
-                      </div>
-                    </td>
-                    <td>
-                      <span className={`status-badge ${
-                        item.status === 'Delivered' ? 'success' : 
-                        item.status === 'In Transit' ? 'warning' : 
-                        'pending'
-                      }`}>
-                        {item.status || 'Pending'}
-                      </span>
+                      <StatusBadge status={item.status || 'Pending'} />
                     </td>
                     <td>{item.notes || '-'}</td>
                   </tr>

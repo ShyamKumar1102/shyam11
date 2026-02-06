@@ -12,11 +12,16 @@ const dispatchRoutes = require('./routes/dispatch');
 const invoiceRoutes = require('./routes/invoices');
 const courierRoutes = require('./routes/couriers');
 const shipmentRoutes = require('./routes/shipments');
+const purchaseBillRoutes = require('./routes/purchase-bills');
+const purchaseOrderRoutes = require('./routes/purchase-orders');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes
@@ -30,6 +35,14 @@ app.use('/api/dispatch', dispatchRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/couriers', courierRoutes);
 app.use('/api/shipments', shipmentRoutes);
+app.use('/api/purchase-bills', purchaseBillRoutes);
+app.use('/api/purchase-orders', purchaseOrderRoutes);
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ error: 'Internal server error', details: err.message });
+});
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
@@ -38,7 +51,6 @@ app.get('/api/health', (req, res) => {
 
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://0.0.0.0:${PORT}`);
-  console.log(`Network access: http://192.168.1.10:${PORT}`);
 }).on('error', (err) => {
   if (err.code === 'EADDRINUSE') {
     const newPort = parseInt(PORT) + 1;

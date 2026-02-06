@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Save, Truck, Mail, Phone, MapPin } from 'lucide-react';
 import { supplierService } from '../services/userService';
+import '../styles/ToggleButton.css';
 
 const EditSupplier = () => {
   const navigate = useNavigate();
@@ -13,7 +14,8 @@ const EditSupplier = () => {
     email: '',
     phone: '',
     address: '',
-    company: ''
+    company: '',
+    status: 'active'
   });
 
   useEffect(() => {
@@ -25,7 +27,8 @@ const EditSupplier = () => {
         email: supplier.email || '',
         phone: supplier.phone || '',
         address: supplier.address || '',
-        company: supplier.company || ''
+        company: supplier.company || '',
+        status: supplier.status || 'active'
       });
     } else {
       navigate('/dashboard/users/suppliers');
@@ -156,7 +159,7 @@ const EditSupplier = () => {
             </div>
 
             <div className="form-section">
-              <h4><MapPin size={20} />Address</h4>
+              <h4><MapPin size={20} />Address & Status</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="address">Address</label>
@@ -168,6 +171,22 @@ const EditSupplier = () => {
                     onChange={handleChange}
                     placeholder="Enter address"
                   />
+                </div>
+                <div className="form-group">
+                  <label>Supplier Status</label>
+                  <div className="toggle-wrapper">
+                    <label className="toggle-switch">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.status === 'active'}
+                        onChange={(e) => setFormData({...formData, status: e.target.checked ? 'active' : 'inactive'})}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                    <div className={`toggle-status ${formData.status === 'active' ? 'active' : 'inactive'}`}>
+                      {formData.status === 'active' ? 'Active' : 'Inactive'}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

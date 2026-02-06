@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit, Trash2, Search, Package, Tag, DollarSign, Barcode } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, Package, Tag, DollarSign, Barcode, TrendingUp, AlertTriangle, Eye } from 'lucide-react';
 import { productService } from '../services/productService';
+import ViewModal from './ViewModal';
+import StatusBadge from './StatusBadge';
+import CategoryBadge from './CategoryBadge';
+import Badge from './Badge';
 import '../styles/Products.css';
 
 const Products = () => {
@@ -9,6 +13,7 @@ const Products = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [viewModal, setViewModal] = useState({ isOpen: false, product: null });
 
   useEffect(() => {
     fetchProducts();
@@ -48,6 +53,21 @@ const Products = () => {
     }
   };
 
+  const handleView = (product) => {
+    setViewModal({ isOpen: true, product });
+  };
+
+  const productFields = [
+    { label: 'Product ID', key: 'id' },
+    { label: 'Product Name', key: 'name' },
+    { label: 'Category', key: 'category' },
+    { label: 'Barcode', key: 'barcode' },
+    { label: 'Quantity', key: 'quantity' },
+    { label: 'Unit Price', key: 'price' },
+    { label: 'Total Value', key: 'totalValue' },
+    { label: 'Status', key: 'status' }
+  ];
+
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -63,12 +83,21 @@ const Products = () => {
     return <div className="loading">Loading products...</div>;
   }
 
+  // Prepare product data for modal
+  const modalProduct = viewModal.product ? {
+    ...viewModal.product,
+    totalValue: `$${(viewModal.product.quantity * viewModal.product.price).toFixed(2)}`,
+    price: `$${viewModal.product.price.toFixed(2)}`,
+    quantity: `${viewModal.product.quantity} units`,
+    status: viewModal.product.quantity <= 10 ? 'Low Stock' : 'In Stock'
+  } : null;
+
   return (
     <div className="page-container">
       <div className="page-header">
         <div className="page-title">
           <h1>📦 Product Management</h1>
-          <p>Manage your product catalog and inventory</p>
+          <p>Manage your product catalog and inventory with enhanced mobile experience</p>
         </div>
         <button 
           className="btn btn-primary"
@@ -81,7 +110,7 @@ const Products = () => {
 
       <div className="stats-grid">
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#e0e7ff' }}>
+          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)' }}>
             <Package size={24} color="#6366f1" />
           </div>
           <div className="stat-content">
@@ -92,8 +121,8 @@ const Products = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#fee2e2' }}>
-            <Tag size={24} color="#ef4444" />
+          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)' }}>
+            <AlertTriangle size={24} color="#ef4444" />
           </div>
           <div className="stat-content">
             <h3>Low Stock</h3>
@@ -103,7 +132,7 @@ const Products = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#d1fae5' }}>
+          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)' }}>
             <DollarSign size={24} color="#059669" />
           </div>
           <div className="stat-content">
@@ -114,8 +143,8 @@ const Products = () => {
         </div>
 
         <div className="stat-card">
-          <div className="stat-icon" style={{ background: '#fef3c7' }}>
-            <Barcode size={24} color="#f59e0b" />
+          <div className="stat-icon" style={{ background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' }}>
+            <TrendingUp size={24} color="#f59e0b" />
           </div>
           <div className="stat-content">
             <h3>Category A</h3>
@@ -132,7 +161,7 @@ const Products = () => {
             <Search size={20} />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search products, IDs, or barcodes..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -166,30 +195,28 @@ const Products = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`category-badge category-${product.category.toLowerCase()}`}>
-                        Category {product.category}
-                      </span>
+                      <CategoryBadge category={product.category} />
                     </td>
                     <td>
-                      <div className="barcode-display">
-                        <Barcode size={14} />
-                        {product.barcode}
-                      </div>
+                      <Badge variant="blue">{product.barcode}</Badge>
                     </td>
                     <td>
-                      <span className={`stock-badge ${product.quantity <= 5 ? 'low' : product.quantity <= 50 ? 'medium' : 'high'}`}>
-                        {product.quantity} units
-                      </span>
+                      <Badge variant="purple">{product.quantity} units</Badge>
                     </td>
-                    <td className="currency">${product.price.toFixed(2)}</td>
-                    <td className="currency"><strong>${(product.quantity * product.price).toFixed(2)}</strong></td>
+                    <td><Badge variant="green">${product.price.toFixed(2)}</Badge></td>
+                    <td><Badge variant="green">${(product.quantity * product.price).toFixed(2)}</Badge></td>
                     <td>
-                      <span className={`status-badge ${product.quantity <= 10 ? 'warning' : 'success'}`}>
-                        {product.quantity <= 10 ? 'Low Stock' : 'In Stock'}
-                      </span>
+                      <StatusBadge status={product.quantity <= 10 ? 'Low Stock' : 'In Stock'} />
                     </td>
                     <td>
                       <div className="action-buttons">
+                        <button 
+                          className="btn-icon view"
+                          onClick={() => handleView(product)}
+                          title="View Product"
+                        >
+                          <Eye size={16} />
+                        </button>
                         <button 
                           className="btn-icon edit"
                           onClick={() => navigate(`/dashboard/products/edit/${product.id}`)}
@@ -210,8 +237,14 @@ const Products = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="9" style={{ textAlign: 'center', padding: '2rem' }}>
-                    No products found
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
+                    <Package size={48} style={{ margin: '0 auto 1rem', opacity: 0.5 }} />
+                    <div style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                      No products found
+                    </div>
+                    <div style={{ fontSize: '0.875rem' }}>
+                      {searchTerm ? 'Try adjusting your search terms' : 'Start by adding your first product'}
+                    </div>
                   </td>
                 </tr>
               )}
@@ -219,6 +252,14 @@ const Products = () => {
           </table>
         </div>
       </div>
+      
+      <ViewModal
+        isOpen={viewModal.isOpen}
+        onClose={() => setViewModal({ isOpen: false, product: null })}
+        title="Product Details"
+        data={modalProduct}
+        fields={productFields}
+      />
     </div>
   );
 };

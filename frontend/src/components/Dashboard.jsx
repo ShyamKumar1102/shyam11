@@ -1,6 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Menu } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import Sidebar from './Sidebar';
 import Home from './Home';
 import Stock from './Stock';
@@ -11,11 +11,13 @@ import AddProduct from './AddProduct';
 import EditProduct from './EditProduct';
 import DispatchStock from './DispatchStock';
 import DispatchHistory from './DispatchHistory';
-import Procurement from './Income';
+import Procurement from './Procurement';
 import AvailableStocks from './AvailableStocks';
 import Invoice from './Invoice';
 import CreateInvoice from './CreateInvoice';
 import AutoGenerateInvoice from './AutoGenerateInvoice';
+import PurchaseBills from './PurchaseBills';
+import PurchaseBill from './PurchaseBill';
 import Customer from './Customer';
 import AddCustomer from './AddCustomer';
 import EditCustomer from './EditCustomer';
@@ -24,7 +26,9 @@ import AddSupplier from './AddSupplier';
 import EditSupplier from './EditSupplier';
 import Couriers from './Couriers';
 import AddCourier from './AddCourier';
+import EditCourier from './EditCourier';
 import Shipments from './Shipments';
+import AddPurchaseOrder from './AddPurchaseOrder';
 import ShipmentHistory from './ShipmentHistory';
 import ErrorBoundary from './ErrorBoundary';
 import '../styles/Dashboard.css';
@@ -58,6 +62,10 @@ const Dashboard = ({ setAuth }) => {
     }
   };
 
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
   return (
     <div className="dashboard">
       {/* Mobile Overlay */}
@@ -76,14 +84,14 @@ const Dashboard = ({ setAuth }) => {
         onMobileClose={closeMobileMenu}
       />
       
-      {/* Mobile Menu Toggle */}
+      {/* Enhanced Mobile Menu Toggle */}
       {isMobile && (
         <button 
-          className="mobile-menu-toggle"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          className={`mobile-menu-toggle ${mobileMenuOpen ? 'active' : ''}`}
+          onClick={toggleMobileMenu}
+          aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
         >
-          <Menu size={24} />
+          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       )}
 
@@ -101,10 +109,13 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/dispatch" element={<DispatchStock />} />
             <Route path="/dispatch/history" element={<DispatchHistory />} />
             <Route path="/available-stocks" element={<AvailableStocks />} />
-            <Route path="/income" element={<Procurement />} />
+            <Route path="/procurement" element={<Procurement />} />
+            <Route path="/purchase-orders/add" element={<AddPurchaseOrder />} />
             <Route path="/billing/invoice" element={<Invoice />} />
             <Route path="/billing/invoice/create" element={<CreateInvoice />} />
             <Route path="/billing/invoice/auto-generate" element={<AutoGenerateInvoice />} />
+            <Route path="/billing/purchase-bills" element={<PurchaseBills />} />
+            <Route path="/billing/purchase-bill/create" element={<PurchaseBill />} />
             <Route path="/users/customers" element={<Customer />} />
             <Route path="/users/customers/add" element={<AddCustomer />} />
             <Route path="/users/customers/edit" element={<EditCustomer />} />
@@ -113,6 +124,7 @@ const Dashboard = ({ setAuth }) => {
             <Route path="/users/suppliers/edit" element={<EditSupplier />} />
             <Route path="/couriers" element={<Couriers />} />
             <Route path="/couriers/add" element={<AddCourier />} />
+            <Route path="/couriers/edit" element={<EditCourier />} />
             <Route path="/shipments" element={<Shipments />} />
             <Route path="/shipments/history" element={<ShipmentHistory />} />
 

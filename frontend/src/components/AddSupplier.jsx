@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, Truck, Mail, Phone, MapPin, TruckIcon } from 'lucide-react';
 import { supplierService } from '../services/userService';
+import { generateSupplierId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
+import '../styles/ToggleButton.css';
 
 const AddSupplier = () => {
   const navigate = useNavigate();
@@ -11,7 +14,8 @@ const AddSupplier = () => {
     email: '',
     phone: '',
     address: '',
-    company: ''
+    company: '',
+    status: 'active'
   });
 
   const handleSubmit = async (e) => {
@@ -19,20 +23,27 @@ const AddSupplier = () => {
     setLoading(true);
 
     try {
-      console.log('Submitting supplier data:', formData);
-      const result = await supplierService.createSupplier(formData);
+      const supplierData = {
+        supplierId: generateSupplierId(),
+        ...formData
+      };
+      
+      console.log('Submitting supplier data:', supplierData);
+      const result = await supplierService.createSupplier(supplierData);
       console.log('Result:', result);
       
       if (result.success) {
-        alert('Supplier added successfully!');
-        navigate('/dashboard/users/suppliers');
+        showSuccessMessage('Supplier added successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/users/suppliers');
+        }, 2000);
       } else {
         console.error('Error from API:', result.error);
-        alert(result.error || 'Failed to add supplier');
+        showErrorMessage(result.error || 'Failed to add supplier');
       }
     } catch (error) {
       console.error('Error adding supplier:', error);
-      alert('Failed to add supplier: ' + (error.message || 'Unknown error'));
+      showErrorMessage('Failed to add supplier: ' + (error.message || 'Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -127,7 +138,7 @@ const AddSupplier = () => {
             </div>
 
             <div className="form-section">
-              <h4><MapPin size={20} />Address</h4>
+              <h4><MapPin size={20} />Address & Status</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="address">Address</label>
@@ -139,6 +150,22 @@ const AddSupplier = () => {
                     onChange={handleChange}
                     placeholder="Enter address"
                   />
+                </div>
+                <div className="form-group">
+                  <label>Supplier Status</label>
+                  <div className="toggle-wrapper">
+                    <label className="toggle-switch">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.status === 'active'}
+                        onChange={(e) => setFormData({...formData, status: e.target.checked ? 'active' : 'inactive'})}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                    <div className={`toggle-status ${formData.status === 'active' ? 'active' : 'inactive'}`}>
+                      {formData.status === 'active' ? 'Active' : 'Inactive'}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

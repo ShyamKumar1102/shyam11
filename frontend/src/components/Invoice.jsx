@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Eye, FileText, Calendar, User } from 'lucide-react';
+import { Search, Plus, Eye, FileText, Calendar, User, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { invoiceService } from '../services/billingService';
+import ViewModal from './ViewModal';
+import StatusBadge from './StatusBadge';
 import '../styles/Products.css';
+import '../styles/DynamicModal.css';
+import '../styles/StatusBadges.css';
 
 const Invoice = () => {
   const [invoices, setInvoices] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +36,43 @@ const Invoice = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDownloadInvoice = (invoice) => {
+    const invoiceData = {
+      invoiceId: invoice.invoiceId,
+      invoiceNumber: invoice.invoiceNumber,
+      customerName: invoice.customerName,
+      invoiceDate: invoice.invoiceDate,
+      dueDate: invoice.dueDate,
+      items: invoice.items || [],
+      subtotal: invoice.subtotal,
+      tax: invoice.tax,
+      totalAmount: invoice.totalAmount,
+      customerType: invoice.customerType,
+      notes: invoice.notes
+    };
+    
+    const dataStr = JSON.stringify(invoiceData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `invoice-${invoice.invoiceNumber || invoice.invoiceId}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleViewInvoice = (invoice) => {
+    setSelectedInvoice(invoice);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setSelectedInvoice(null);
+    setShowModal(false);
   };
 
   const filteredInvoices = invoices.filter(invoice =>
@@ -118,14 +161,29 @@ const Invoice = () => {
                       <span className="amount">${(invoice.totalAmount || 0).toFixed(2)}</span>
                     </td>
                     <td>
-                      <span className="status-badge success">
-                        {invoice.status || 'Pending'}
-                      </span>
+                      <StatusBadge status={invoice.status || 'Pending'} />
                     </td>
                     <td>
-                      <button className="btn-icon view" title="View Invoice">
-                        <Eye size={16} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <button 
+                          className="btn-icon view" 
+                          title="View Invoice"
+                          onClick={() => handleViewInvoice(invoice)}
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          className="btn-icon download" 
+                          title="Download Invoice"
+                          onClick={() => handleDownloadInvoice(invoice)}
+                          style={{
+                            background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                            color: 'white'
+                          }}
+                        >
+                          <Download size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -140,6 +198,23 @@ const Invoice = () => {
           </table>
         </div>
       </div>
+
+      <ViewModal
+        isOpen={showModal}
+        onClose={closeModal}
+        title="Invoice Details"
+        data={selectedInvoice}
+        fields={[
+          { key: 'invoiceId', label: 'Invoice ID' },
+          { key: 'customerName', label: 'Customer Name' },
+          { key: 'invoiceDate', label: 'Invoice Date' },
+          { key: 'totalAmount', label: 'Total Amount', prefix: '$' },
+          { key: 'status', label: 'Status' },
+          { key: 'paymentMethod', label: 'Payment Method' },
+          { key: 'dueDate', label: 'Due Date' },
+          { key: 'notes', label: 'Notes' }
+        ]}
+      />
     </div>
   );
 };

@@ -15,13 +15,14 @@ const client = new DynamoDBClient({
 const docClient = DynamoDBDocumentClient.from(client);
 
 // Get all orders
-router.get('/', authenticateToken, async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const result = await docClient.send(new ScanCommand({
       TableName: process.env.ORDERS_TABLE
     }));
     res.json(result.Items || []);
   } catch (error) {
+    console.error('Error fetching orders:', error);
     res.status(500).json({ error: 'Failed to fetch orders' });
   }
 });
@@ -45,18 +46,18 @@ router.get('/range', authenticateToken, async (req, res) => {
 });
 
 // Create order
-router.post('/', authenticateToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const { customerId, customerName, items, orderValue } = req.body;
     
     const order = {
-      id: Date.now().toString(),
+      id: `ORD${Date.now()}`,
       customerId,
       customerName,
       items,
-      orderValue: parseFloat(orderValue),
+      totalAmount: parseFloat(orderValue),
       orderDate: new Date().toISOString().split('T')[0],
-      status: 'completed',
+      status: 'Completed',
       createdAt: new Date().toISOString()
     };
 
@@ -67,6 +68,7 @@ router.post('/', authenticateToken, async (req, res) => {
 
     res.status(201).json(order);
   } catch (error) {
+    console.error('Error creating order:', error);
     res.status(500).json({ error: 'Failed to create order' });
   }
 });

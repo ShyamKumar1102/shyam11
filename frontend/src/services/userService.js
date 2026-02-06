@@ -4,7 +4,7 @@ export const customerService = {
   async getAllCustomers() {
     try {
       const response = await api.get('/customers');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Get customers error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch customers' };
@@ -28,7 +28,7 @@ export const customerService = {
   async createCustomer(customerData) {
     try {
       const response = await api.post('/customers', customerData);
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Create customer error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to create customer' };
@@ -60,7 +60,7 @@ export const supplierService = {
   async getAllSuppliers() {
     try {
       const response = await api.get('/suppliers');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Get suppliers error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch suppliers' };
@@ -84,7 +84,7 @@ export const supplierService = {
   async createSupplier(supplierData) {
     try {
       const response = await api.post('/suppliers', supplierData);
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Create supplier error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to create supplier' };

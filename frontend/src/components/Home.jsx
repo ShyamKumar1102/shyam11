@@ -1,8 +1,9 @@
-import { Package, TrendingUp, FileText, Users, BarChart3, Truck } from 'lucide-react';
+import { Package, TrendingUp, FileText, Users, BarChart3, Truck, ShoppingCart, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { productService, stockService, orderService } from '../services/productService';
 import '../styles/Home.css';
+import '../styles/Products.css';
 
 const Home = () => {
   const navigate = useNavigate();
@@ -62,20 +63,41 @@ const Home = () => {
       title: 'Dispatch Stock',
       icon: Truck,
       color: '#f59e0b',
-      description: 'Dispatch items and track delivery status.',
+      description: 'Dispatch items and track delivery with courier integration.',
       path: '/dashboard/dispatch'
+    },
+    {
+      title: 'Shipments',
+      icon: MapPin,
+      color: '#ec4899',
+      description: 'Track shipments in real-time with order location.',
+      path: '/dashboard/shipments'
+    },
+    {
+      title: 'Procurement',
+      icon: ShoppingCart,
+      color: '#8b5cf6',
+      description: 'Manage purchase orders and track revenue.',
+      path: '/dashboard/procurement'
     },
     {
       title: 'Billing',
       icon: FileText,
-      color: '#8b5cf6',
-      description: 'Generate invoices with auto-filled customer details.',
+      color: '#06b6d4',
+      description: 'Generate invoices and purchase bills automatically.',
       path: '/dashboard/billing/invoice'
+    },
+    {
+      title: 'Couriers',
+      icon: Truck,
+      color: '#10b981',
+      description: 'Manage courier companies and delivery services.',
+      path: '/dashboard/couriers'
     },
     {
       title: 'Users',
       icon: Users,
-      color: '#06b6d4',
+      color: '#f43f5e',
       description: 'Manage customers and suppliers.',
       path: '/dashboard/users/customers'
     }

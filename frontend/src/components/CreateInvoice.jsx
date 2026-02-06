@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, Save, FileText, User, Calendar } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, FileText, User, Calendar, Truck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { invoiceService } from '../services/billingService';
 import { customerService } from '../services/userService';
+import { generateInvoiceId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
 import '../styles/Products.css';
 
 const CreateInvoice = () => {
@@ -11,6 +13,7 @@ const CreateInvoice = () => {
   const [formData, setFormData] = useState({
     customerId: '',
     customerName: '',
+    customerType: 'registered', // registered, unregistered, consumer
     invoiceDate: new Date().toISOString().split('T')[0],
     dueDate: '',
     items: [{ description: '', quantity: 1, price: 0 }],
@@ -77,7 +80,22 @@ const CreateInvoice = () => {
   };
 
   const calculateTax = () => {
-    return calculateSubtotal() * 0.1; // 10% tax
+    const subtotal = calculateSubtotal();
+    let gstRate = 0.18; // Default 18% for registered
+    
+    if (formData.customerType === 'unregistered') {
+      gstRate = 0.12; // 12% for unregistered
+    } else if (formData.customerType === 'consumer') {
+      gstRate = 0.05; // 5% for consumer
+    }
+    
+    return subtotal * gstRate;
+  };
+
+  const getGSTPercentage = () => {
+    if (formData.customerType === 'unregistered') return '12%';
+    if (formData.customerType === 'consumer') return '5%';
+    return '18%'; // registered
   };
 
   const calculateTotal = () => {
@@ -90,6 +108,8 @@ const CreateInvoice = () => {
 
     try {
       const invoiceData = {
+        invoiceId: generateInvoiceId(),
+        invoiceNumber: `INV-${Date.now()}`,
         ...formData,
         subtotal: calculateSubtotal(),
         tax: calculateTax(),
@@ -99,14 +119,16 @@ const CreateInvoice = () => {
 
       const result = await invoiceService.createInvoice(invoiceData);
       if (result.success) {
-        alert('Invoice created successfully!');
-        navigate('/dashboard/billing/invoice');
+        showSuccessMessage('Invoice created successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/billing/invoice');
+        }, 2000);
       } else {
-        alert('Failed to create invoice');
+        showErrorMessage('Failed to create invoice');
       }
     } catch (error) {
       console.error('Error creating invoice:', error);
-      alert('Failed to create invoice');
+      showErrorMessage('Failed to create invoice');
     } finally {
       setLoading(false);
     }
@@ -157,6 +179,32 @@ const CreateInvoice = () => {
                     )}
                   </select>
                 </div>
+                <div className="form-group">
+                  <label htmlFor="customerType">Customer Type *</label>
+                  <select
+                    id="customerType"
+                    name="customerType"
+                    value={formData.customerType}
+                    onChange={handleChange}
+                    required
+                    style={{
+                      background: formData.customerType === 'registered' ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' :
+                                 formData.customerType === 'unregistered' ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' :
+                                 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                      border: '2px solid',
+                      borderColor: formData.customerType === 'registered' ? '#3b82f6' :
+                                  formData.customerType === 'unregistered' ? '#f59e0b' : '#10b981',
+                      borderRadius: '8px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    <option value="registered">Registered (18% GST)</option>
+                    <option value="unregistered">Unregistered (12% GST)</option>
+                    <option value="consumer">Consumer (5% GST)</option>
+                  </select>
+                </div>
+              </div>
+              <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="customerName">Customer Name</label>
                   <input
@@ -261,6 +309,94 @@ const CreateInvoice = () => {
             </div>
 
             <div className="form-section">
+              <h4><User size={20} />Billing Address</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="billingContactPerson">Contact Person *</label>
+                  <input
+                    type="text"
+                    id="billingContactPerson"
+                    name="billingContactPerson"
+                    value={formData.billingContactPerson || ''}
+                    onChange={handleChange}
+                    placeholder="Enter contact person name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="billingMobile">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    id="billingMobile"
+                    name="billingMobile"
+                    value={formData.billingMobile || ''}
+                    onChange={handleChange}
+                    placeholder="Enter mobile number"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="billingAddress">Billing Address *</label>
+                  <textarea
+                    id="billingAddress"
+                    name="billingAddress"
+                    value={formData.billingAddress || ''}
+                    onChange={handleChange}
+                    placeholder="Enter complete billing address"
+                    rows="3"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h4><Truck size={20} />Shipping Address</h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="shippingContactPerson">Contact Person *</label>
+                  <input
+                    type="text"
+                    id="shippingContactPerson"
+                    name="shippingContactPerson"
+                    value={formData.shippingContactPerson || ''}
+                    onChange={handleChange}
+                    placeholder="Enter contact person name"
+                    required
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="shippingMobile">Mobile Number *</label>
+                  <input
+                    type="tel"
+                    id="shippingMobile"
+                    name="shippingMobile"
+                    value={formData.shippingMobile || ''}
+                    onChange={handleChange}
+                    placeholder="Enter mobile number"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="shippingAddress">Shipping Address *</label>
+                  <textarea
+                    id="shippingAddress"
+                    name="shippingAddress"
+                    value={formData.shippingAddress || ''}
+                    onChange={handleChange}
+                    placeholder="Enter complete shipping address"
+                    rows="3"
+                    required
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
               <h4><Calendar size={20} />Additional Information</h4>
               <div className="form-row">
                 <div className="form-group">
@@ -284,7 +420,7 @@ const CreateInvoice = () => {
                   <span>${calculateSubtotal().toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <span>Tax (10%):</span>
+                  <span>GST ({getGSTPercentage()}):</span>
                   <span>${calculateTax().toFixed(2)}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '1.25rem', fontWeight: 'bold', borderTop: '1px solid #e2e8f0', paddingTop: '0.5rem' }}>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Package, MapPin, Hash } from 'lucide-react';
+import { ArrowLeft, Save, Package, MapPin, Hash, Plus } from 'lucide-react';
 import { stockService } from '../services/productService';
-import { supplierService } from '../services/userService';
+import { supplierService } from '../services/supplierService';
+import '../styles/Forms.css';
 
 const UpdateStock = () => {
   const navigate = useNavigate();
@@ -68,14 +69,12 @@ const UpdateStock = () => {
   };
 
   const handleSupplierChange = (supplierId) => {
-    const supplier = suppliers.find(s => (s.supplierId || s.id) === supplierId);
-    if (supplier) {
-      setFormData({
-        ...formData,
-        supplier: supplierId,
-        supplierName: supplier.name || ''
-      });
-    }
+    const supplier = suppliers.find(s => (s.id || s.supplierId) === supplierId);
+    setFormData(prev => ({
+      ...prev,
+      supplier: supplierId,
+      supplierName: supplier ? supplier.name || '' : ''
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -117,23 +116,34 @@ const UpdateStock = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/overview')}>
-          <ArrowLeft size={20} />
-          Back to Stock Summary
-        </button>
-        <div className="page-title">
-          <h1>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', marginRight: '12px', verticalAlign: 'middle' }}>
-              <Package size={20} color="#fff" />
-            </span>
-            Update Stock
-          </h1>
-          <p>Update stock quantity and details for existing items</p>
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/overview')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
+          <h1>Update Stock</h1>
         </div>
+        <button 
+          className="btn btn-primary"
+          onClick={() => navigate('/dashboard/products/add')}
+        >
+          <Plus size={20} />
+          Add Product
+        </button>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <Package size={24} />
+          </div>
+          <div>
+            <h2>Update Stock Information</h2>
+            <p>Update stock quantity and details for existing items</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
               <h4><Package size={20} />Stock Selection</h4>
@@ -146,6 +156,7 @@ const UpdateStock = () => {
                     value={formData.stockId}
                     onChange={(e) => handleStockChange(e.target.value)}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Stock</option>
                     {stocks.map((stock) => (
@@ -164,7 +175,7 @@ const UpdateStock = () => {
                     value={formData.itemName}
                     readOnly
                     placeholder="Auto-filled from stock"
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
@@ -181,11 +192,12 @@ const UpdateStock = () => {
                     value={formData.category}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Category</option>
-                    <option value="A">Category A</option>
-                    <option value="B">Category B</option>
-                    <option value="C">Category C</option>
+                    <option value="A">Category A - Premium</option>
+                    <option value="B">Category B - Standard</option>
+                    <option value="C">Category C - Basic</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -196,7 +208,7 @@ const UpdateStock = () => {
                     name="currentQuantity"
                     value={formData.currentQuantity}
                     readOnly
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
@@ -212,8 +224,17 @@ const UpdateStock = () => {
                     required
                     min="1"
                     placeholder="Enter quantity to add"
+                    className={formData.addQuantity ? 'filled' : ''}
                   />
                 </div>
+                {formData.currentQuantity && formData.addQuantity && (
+                  <div className="form-group">
+                    <label>New Total Quantity</label>
+                    <div className="calculated-value">
+                      {parseInt(formData.currentQuantity || 0) + parseInt(formData.addQuantity || 0)} units
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -228,6 +249,7 @@ const UpdateStock = () => {
                     value={formData.location}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Location</option>
                     <option value="Warehouse A">Warehouse A</option>
@@ -242,11 +264,12 @@ const UpdateStock = () => {
                     name="supplier"
                     value={formData.supplier}
                     onChange={(e) => handleSupplierChange(e.target.value)}
+                    className="enhanced-select"
                   >
                     <option value="">Select Supplier</option>
                     {suppliers.map((supplier) => (
-                      <option key={supplier.supplierId || supplier.id} value={supplier.supplierId || supplier.id}>
-                        {supplier.supplierId || supplier.id} - {supplier.name}
+                      <option key={supplier.id || supplier.supplierId} value={supplier.id || supplier.supplierId}>
+                        {supplier.id || supplier.supplierId} - {supplier.name}
                       </option>
                     ))}
                   </select>
@@ -262,7 +285,7 @@ const UpdateStock = () => {
                     value={formData.supplierName}
                     readOnly
                     placeholder="Auto-filled from supplier"
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
@@ -280,6 +303,7 @@ const UpdateStock = () => {
                     value={formData.batchNumber}
                     onChange={handleChange}
                     placeholder="Enter batch number"
+                    className={formData.batchNumber ? 'filled' : ''}
                   />
                 </div>
               </div>
@@ -291,16 +315,17 @@ const UpdateStock = () => {
               type="button" 
               className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/overview')}
+              disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={loading}
+              disabled={loading || !formData.stockId || !formData.addQuantity}
             >
               <Save size={18} />
-              {loading ? 'Updating...' : 'Update Stock'}
+              {loading ? 'Updating Stock...' : 'Update Stock'}
             </button>
           </div>
         </form>

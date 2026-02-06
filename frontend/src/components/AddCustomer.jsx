@@ -2,6 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Save, User, Mail, Phone, MapPin, UserPlus } from 'lucide-react';
 import { customerService } from '../services/userService';
+import { generateCustomerId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
+import '../styles/Products.css';
 
 const AddCustomer = () => {
   const navigate = useNavigate();
@@ -19,17 +22,24 @@ const AddCustomer = () => {
     setLoading(true);
 
     try {
-      const result = await customerService.createCustomer(formData);
+      const customerData = {
+        customerId: generateCustomerId(),
+        ...formData
+      };
+      
+      const result = await customerService.createCustomer(customerData);
       
       if (result.success) {
-        alert('Customer added successfully!');
-        navigate('/dashboard/users/customers');
+        showSuccessMessage('Customer added successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/users/customers');
+        }, 2000);
       } else {
-        alert(result.error || 'Failed to add customer');
+        showErrorMessage(result.error || 'Failed to add customer');
       }
     } catch (error) {
       console.error('Error adding customer:', error);
-      alert('Failed to add customer');
+      showErrorMessage('Failed to add customer');
     } finally {
       setLoading(false);
     }

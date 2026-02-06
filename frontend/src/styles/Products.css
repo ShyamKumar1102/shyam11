@@ -3,34 +3,6 @@
 @import './Professional.css';
 
 /* Products Page Styles */
-.category-badge {
-  padding: 0.35rem 0.85rem;
-  border-radius: 16px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  display: inline-block;
-}
-
-.category-badge.category-a {
-  background: #dbeafe;
-  color: #1e40af;
-  border: 1px solid #bfdbfe;
-}
-
-.category-badge.category-b {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fde68a;
-}
-
-.category-badge.category-c {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #a7f3d0;
-}
-
 .barcode-display {
   display: flex;
   align-items: center;

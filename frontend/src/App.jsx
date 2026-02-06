@@ -4,6 +4,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import Dashboard from './components/Dashboard';
 import ErrorBoundary from './components/ErrorBoundary';
+import './styles/MobileEnhanced.css';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);

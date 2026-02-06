@@ -37,6 +37,7 @@ router.post('/', async (req, res) => {
     const {
       customerId,
       customerName,
+      customerType,
       invoiceDate,
       dueDate,
       items,
@@ -51,21 +52,19 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Customer ID and items are required' });
     }
 
-    const invoiceId = uuidv4();
-    const invoiceNumber = `INV-${Date.now()}`;
-
-    const invoice = {
-      invoiceId,
-      invoiceNumber,
-      customerId,
-      customerName,
-      invoiceDate,
-      dueDate,
-      items,
+    const invoiceData = {
+      invoiceId: req.body.invoiceId || `INV${Date.now()}`,
+      invoiceNumber: req.body.invoiceNumber || `INV-${Date.now()}`,
+      customerId: customerId || '',
+      customerName: customerName || '',
+      customerType: customerType || 'registered',
+      invoiceDate: invoiceDate || new Date().toISOString().split('T')[0],
+      dueDate: dueDate || new Date().toISOString().split('T')[0],
+      items: items || [],
       notes: notes || '',
-      subtotal: subtotal || 0,
-      tax: tax || 0,
-      totalAmount: totalAmount || 0,
+      subtotal: parseFloat(subtotal) || 0,
+      tax: parseFloat(tax) || 0,
+      totalAmount: parseFloat(totalAmount) || 0,
       status: status || 'Pending',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -73,14 +72,14 @@ router.post('/', async (req, res) => {
 
     const command = new PutCommand({
       TableName: INVOICES_TABLE,
-      Item: invoice,
+      Item: invoiceData,
     });
 
     await docClient.send(command);
-    res.status(201).json(invoice);
+    res.status(201).json(invoiceData);
   } catch (error) {
     console.error('Error creating invoice:', error);
-    res.status(500).json({ error: 'Failed to create invoice' });
+    res.status(500).json({ error: 'Failed to create invoice', details: error.message });
   }
 });
 

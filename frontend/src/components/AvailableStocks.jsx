@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
-import { Package, Search, Eye, AlertTriangle, X } from 'lucide-react';
+import { Package, Search, Eye, AlertTriangle } from 'lucide-react';
 import { stockService } from '../services/productService';
+import ViewModal from './ViewModal';
+import StatusBadge from './StatusBadge';
+import CategoryBadge from './CategoryBadge';
+import Badge from './Badge';
 import '../styles/AvailableStocks.css';
+import '../styles/DynamicModal.css';
 
 const AvailableStocks = () => {
   const [stocks, setStocks] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedStock, setSelectedStock] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchAvailableStocks();
@@ -42,10 +48,12 @@ const AvailableStocks = () => {
 
   const handleViewDetails = (stock) => {
     setSelectedStock(stock);
+    setShowModal(true);
   };
 
   const closeDetails = () => {
     setSelectedStock(null);
+    setShowModal(false);
   };
 
   if (loading) {
@@ -116,24 +124,23 @@ const AvailableStocks = () => {
             <tbody>
               {filteredStocks.map((stock) => (
                 <tr key={stock.id}>
-                  <td>{stock.productId || stock.id}</td>
-                  <td>{stock.itemName || stock.name}</td>
+                  <td><strong>{stock.productId || stock.id}</strong></td>
                   <td>
-                    <span className={`stock-quantity ${getStockStatus(stock.availableStock || stock.quantity)}`}>
-                      {stock.availableStock || stock.quantity}
-                    </span>
+                    <div className="item-info">
+                      <Package size={16} />
+                      <span>{stock.itemName || stock.name}</span>
+                    </div>
                   </td>
                   <td>
-                    <span className={`category category-${(stock.category || 'a').toLowerCase()}`}>
-                      {stock.category || 'N/A'}
-                    </span>
+                    <Badge variant="purple">{stock.availableStock || stock.quantity} units</Badge>
                   </td>
-                  <td>{stock.location || '-'}</td>
-                  <td>{stock.supplier || '-'}</td>
                   <td>
-                    <span className={`status status-${getStockStatus(stock.availableStock || stock.quantity)}`}>
-                      {getStockStatus(stock.availableStock || stock.quantity).toUpperCase()}
-                    </span>
+                    <CategoryBadge category={stock.category || 'N/A'} />
+                  </td>
+                  <td>{stock.location ? <Badge variant="cyan">{stock.location}</Badge> : <Badge variant="gray">-</Badge>}</td>
+                  <td>{stock.supplier ? <Badge variant="teal">{stock.supplier}</Badge> : <Badge variant="gray">-</Badge>}</td>
+                  <td>
+                    <StatusBadge status={getStockStatus(stock.availableStock || stock.quantity)} />
                   </td>
                   <td>
                     <div className="action-buttons">
@@ -153,57 +160,22 @@ const AvailableStocks = () => {
         </div>
       </div>
 
-      {selectedStock && (
-        <div className="stock-form-overlay">
-          <div className="stock-form-modal">
-            <div className="form-header">
-              <h3>Stock Details</h3>
-              <button className="btn-icon" onClick={closeDetails}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="stock-details">
-              <div className="detail-row">
-                <label>Product ID:</label>
-                <span>{selectedStock.productId}</span>
-              </div>
-              <div className="detail-row">
-                <label>Item Name:</label>
-                <span>{selectedStock.itemName}</span>
-              </div>
-              <div className="detail-row">
-                <label>Available Stock:</label>
-                <span className={`stock-quantity ${getStockStatus(selectedStock.availableStock || selectedStock.quantity || 0)}`}>
-                  {selectedStock.availableStock || selectedStock.quantity || 0} units
-                </span>
-              </div>
-              <div className="detail-row">
-                <label>Category:</label>
-                <span className={`category category-${(selectedStock.category || 'a').toLowerCase()}`}>
-                  {selectedStock.category || 'N/A'}
-                </span>
-              </div>
-              <div className="detail-row">
-                <label>Location:</label>
-                <span>{selectedStock.location || '-'}</span>
-              </div>
-              <div className="detail-row">
-                <label>Supplier:</label>
-                <span>{selectedStock.supplier || '-'}</span>
-              </div>
-              <div className="detail-row">
-                <label>Batch Number:</label>
-                <span>{selectedStock.batchNumber || '-'}</span>
-              </div>
-              <div className="detail-row">
-                <label>Last Updated:</label>
-                <span>{selectedStock.lastUpdated || '-'}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ViewModal
+        isOpen={showModal}
+        onClose={closeDetails}
+        title="Stock Details"
+        data={selectedStock}
+        fields={[
+          { key: 'productId', label: 'Product ID' },
+          { key: 'itemName', label: 'Item Name' },
+          { key: 'availableStock', label: 'Available Stock', suffix: ' units' },
+          { key: 'category', label: 'Category' },
+          { key: 'location', label: 'Location' },
+          { key: 'supplier', label: 'Supplier' },
+          { key: 'batchNumber', label: 'Batch Number' },
+          { key: 'lastUpdated', label: 'Last Updated' }
+        ]}
+      />
     </div>
   );
 };

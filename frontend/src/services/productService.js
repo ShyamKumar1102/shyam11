@@ -4,7 +4,7 @@ export const productService = {
   async getProducts() {
     try {
       const response = await api.get('/products');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Get products error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch products' };
@@ -24,7 +24,7 @@ export const productService = {
   async createProduct(productData) {
     try {
       const response = await api.post('/products', productData);
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Create product error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to create product' };
@@ -56,7 +56,7 @@ export const stockService = {
   async getStock() {
     try {
       const response = await api.get('/stock');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Get stock error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch stock' };
@@ -66,7 +66,7 @@ export const stockService = {
   async addStock(stockData) {
     try {
       const response = await api.post('/stock', stockData);
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       console.error('Add stock error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to add stock' };
@@ -98,7 +98,7 @@ export const orderService = {
   async getOrders() {
     try {
       const response = await api.get('/orders');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data || [] };
     } catch (error) {
       console.error('Get orders error:', error);
       return { success: false, error: error.response?.data?.error || 'Failed to fetch orders' };

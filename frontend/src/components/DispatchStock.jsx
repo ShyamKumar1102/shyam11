@@ -5,6 +5,9 @@ import { invoiceService } from '../services/billingService';
 import { customerService } from '../services/userService';
 import { stockService } from '../services/productService';
 import { courierService, shipmentService } from '../services/courierService';
+import { generateDispatchId, generateShippingId } from '../utils/idGenerator';
+import StatusBadge from './StatusBadge';
+import Badge from './Badge';
 import '../styles/DispatchStock.css';
 
 const DispatchStock = () => {
@@ -41,14 +44,11 @@ const DispatchStock = () => {
     try {
       const result = await invoiceService.getInvoices();
       if (result.success) {
-        console.log('Invoices fetched:', result.data);
         setInvoices(result.data || []);
       } else {
-        console.error('Failed to fetch invoices:', result.error);
         setInvoices([]);
       }
     } catch (error) {
-      console.error('Error fetching invoices:', error);
       setInvoices([]);
     }
   };
@@ -57,14 +57,11 @@ const DispatchStock = () => {
     try {
       const result = await customerService.getAllCustomers();
       if (result.success) {
-        console.log('Customers fetched:', result.data);
         setCustomers(result.data || []);
       } else {
-        console.error('Failed to fetch customers:', result.error);
         setCustomers([]);
       }
     } catch (error) {
-      console.error('Error fetching customers:', error);
       setCustomers([]);
     }
   };
@@ -213,6 +210,7 @@ const DispatchStock = () => {
     try {
       // First create shipment
       const shipmentData = {
+        shipmentId: generateShippingId(),
         orderId: formData.invoiceId,
         courierId: formData.courierId,
         courierName: formData.courierName,
@@ -231,6 +229,7 @@ const DispatchStock = () => {
       if (shipmentResult) {
         // Then create dispatch record with shipmentId
         const dispatchData = {
+          dispatchId: generateDispatchId(),
           stockId: selectedStock.id,
           itemName: selectedStock.itemName,
           dispatchedQuantity: formData.dispatchQuantity,
@@ -378,11 +377,9 @@ const DispatchStock = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`stock-badge ${item.availableQuantity < 20 ? 'low' : item.availableQuantity < 50 ? 'medium' : 'high'}`}>
-                        {item.availableQuantity} units
-                      </span>
+                      <Badge variant="purple">{item.availableQuantity} units</Badge>
                     </td>
-                    <td>{item.location || 'N/A'}</td>
+                    <td><Badge variant="cyan">{item.location || 'N/A'}</Badge></td>
                     <td>
                       <div className="date-info">
                         <Calendar size={14} />
@@ -390,9 +387,7 @@ const DispatchStock = () => {
                       </div>
                     </td>
                     <td>
-                      <span className={`status-badge ${item.status === 'Low Stock' ? 'warning' : 'success'}`}>
-                        {item.status}
-                      </span>
+                      <StatusBadge status={item.status} />
                     </td>
                     <td>
                       <button 

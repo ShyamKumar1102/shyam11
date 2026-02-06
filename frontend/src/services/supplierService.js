@@ -4,7 +4,7 @@ export const supplierService = {
   getSuppliers: async () => {
     try {
       const response = await api.get('/suppliers');
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       return { success: false, error: error.response?.data?.error || 'Failed to fetch suppliers' };
     }
@@ -22,7 +22,7 @@ export const supplierService = {
   createSupplier: async (supplierData) => {
     try {
       const response = await api.post('/suppliers', supplierData);
-      return { success: true, data: response.data };
+      return { success: true, data: response.data.data || response.data };
     } catch (error) {
       return { success: false, error: error.response?.data?.error || 'Failed to create supplier' };
     }

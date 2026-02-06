@@ -261,7 +261,7 @@
   display: block;
 }
 
-/* Mobile Menu Toggle */
+/* Enhanced Mobile Menu Toggle */
 .mobile-menu-toggle {
   display: none;
   position: fixed;
@@ -279,10 +279,36 @@
   cursor: pointer;
   z-index: 998;
   transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.mobile-menu-toggle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.mobile-menu-toggle:hover::before {
+  left: 100%;
 }
 
 .mobile-menu-toggle:active {
   transform: scale(0.95);
+}
+
+.mobile-menu-toggle.active {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  transform: rotate(90deg);
+}
+
+.mobile-menu-toggle.active:hover {
+  transform: rotate(90deg) scale(1.05);
 }
 
 /* Responsive Design */

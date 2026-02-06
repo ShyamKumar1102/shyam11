@@ -1,15 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Plus, Eye, Edit, Trash2, Search, X } from 'lucide-react';
+import { Users, Plus, Eye, Edit, Trash2, Search } from 'lucide-react';
 import { customerService } from '../services/userService';
+import ViewModal from './ViewModal';
+import StatusBadge from './StatusBadge';
+import Badge from './Badge';
+import '../styles/Products.css';
 
 const Customer = () => {
   const navigate = useNavigate();
   const [customers, setCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [viewModal, setViewModal] = useState({ isOpen: false, customer: null });
 
   useEffect(() => {
     fetchCustomers();
@@ -35,9 +38,8 @@ const Customer = () => {
     navigate('/dashboard/users/customers/add');
   };
 
-  const openViewModal = (customer) => {
-    setSelectedCustomer(customer);
-    setShowModal(true);
+  const handleView = (customer) => {
+    setViewModal({ isOpen: true, customer });
   };
 
   const openEditModal = (customer) => {
@@ -61,7 +63,14 @@ const Customer = () => {
     }
   };
 
-
+  const customerFields = [
+    { label: 'Customer ID', key: 'customerId' },
+    { label: 'Name', key: 'name' },
+    { label: 'Email', key: 'email' },
+    { label: 'Phone', key: 'phone' },
+    { label: 'Address', key: 'address' },
+    { label: 'Company', key: 'company' }
+  ];
 
   const filteredCustomers = customers.filter(customer =>
     (customer.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -72,6 +81,12 @@ const Customer = () => {
   if (loading) {
     return <div className="loading">Loading customers...</div>;
   }
+
+  // Prepare customer data for modal
+  const modalCustomer = viewModal.customer ? {
+    ...viewModal.customer,
+    customerId: viewModal.customer.customerId || viewModal.customer.id
+  } : null;
 
   return (
     <div className="page-container">
@@ -122,15 +137,15 @@ const Customer = () => {
               {filteredCustomers.length > 0 ? (
                 filteredCustomers.map((customer) => (
                 <tr key={customer.customerId || customer.id}>
-                  <td>{customer.customerId || customer.id || '-'}</td>
-                  <td>{customer.name || '-'}</td>
-                  <td>{customer.email || '-'}</td>
-                  <td>{customer.phone || '-'}</td>
-                  <td>{customer.address || '-'}</td>
-                  <td>{customer.company || '-'}</td>
+                  <td><strong>{customer.customerId || customer.id || '-'}</strong></td>
+                  <td><Badge variant="blue">{customer.name || '-'}</Badge></td>
+                  <td><Badge variant="gray">{customer.email || '-'}</Badge></td>
+                  <td><Badge variant="gray">{customer.phone || '-'}</Badge></td>
+                  <td><Badge variant="cyan">{customer.address || '-'}</Badge></td>
+                  <td><Badge variant="teal">{customer.company || '-'}</Badge></td>
                   <td>
                     <div className="action-buttons">
-                      <button className="btn-icon view" onClick={() => openViewModal(customer)} title="View">
+                      <button className="btn-icon view" onClick={() => handleView(customer)} title="View">
                         <Eye size={16} />
                       </button>
                       <button className="btn-icon edit" onClick={() => openEditModal(customer)} title="Edit">
@@ -155,45 +170,13 @@ const Customer = () => {
         </div>
       </div>
 
-      {showModal && selectedCustomer && (
-        <div className="stock-form-overlay">
-          <div className="stock-form-modal">
-            <div className="form-header">
-              <h3>Customer Details</h3>
-              <button className="btn-icon" onClick={() => setShowModal(false)}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="stock-details">
-              <div className="detail-row">
-                <label>Customer ID:</label>
-                <span>{selectedCustomer.customerId || selectedCustomer.id}</span>
-              </div>
-              <div className="detail-row">
-                <label>Name:</label>
-                <span>{selectedCustomer.name}</span>
-              </div>
-              <div className="detail-row">
-                <label>Email:</label>
-                <span>{selectedCustomer.email}</span>
-              </div>
-              <div className="detail-row">
-                <label>Phone:</label>
-                <span>{selectedCustomer.phone}</span>
-              </div>
-              <div className="detail-row">
-                <label>Address:</label>
-                <span>{selectedCustomer.address}</span>
-              </div>
-              <div className="detail-row">
-                <label>Company:</label>
-                <span>{selectedCustomer.company}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <ViewModal
+        isOpen={viewModal.isOpen}
+        onClose={() => setViewModal({ isOpen: false, customer: null })}
+        title="Customer Details"
+        data={modalCustomer}
+        fields={customerFields}
+      />
     </div>
   );
 };

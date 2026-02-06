@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Package, MapPin, Hash, User } from 'lucide-react';
+import { ArrowLeft, Save, Package, MapPin, Hash, User, Plus } from 'lucide-react';
 import { stockService, productService } from '../services/productService';
-import { supplierService } from '../services/userService';
+import { supplierService } from '../services/supplierService';
+import { generateStockId, generateBatchId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
 import '../styles/Forms.css';
 
 const AddStock = () => {
@@ -18,8 +20,7 @@ const AddStock = () => {
     location: '',
     supplier: '',
     supplierName: '',
-    batchNumber: '',
-    expiryDate: ''
+    batchNumber: ''
   });
 
   useEffect(() => {
@@ -32,7 +33,7 @@ const AddStock = () => {
       const result = await productService.getProducts();
       if (result.success) {
         console.log('Products fetched:', result.data);
-        setProducts(result.data || []);
+        setProducts(Array.isArray(result.data) ? result.data : []);
       } else {
         console.error('Failed to fetch products:', result.error);
         setProducts([]);
@@ -45,7 +46,7 @@ const AddStock = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const result = await supplierService.getAllSuppliers();
+      const result = await supplierService.getSuppliers();
       if (result.success) {
         console.log('Suppliers fetched:', result.data);
         setSuppliers(result.data || []);
@@ -61,36 +62,28 @@ const AddStock = () => {
 
   const handleProductIdChange = (productId) => {
     const product = products.find(p => (p.id || p.productId) === productId);
-    if (product) {
-      setFormData({
-        ...formData,
-        productId: productId,
-        productName: product.name || ''
-      });
-    } else {
-      setFormData({
-        ...formData,
-        productId: productId,
-        productName: ''
-      });
-    }
+    setFormData(prev => ({
+      ...prev,
+      productId: productId,
+      productName: product?.name || '',
+      batchNumber: '' // Clear batch number when product changes
+    }));
+  };
+
+  const generateBatchNumber = () => {
+    return generateBatchId();
   };
 
   const handleSupplierIdChange = (supplierId) => {
-    const supplier = suppliers.find(s => (s.supplierId || s.id) === supplierId);
-    if (supplier) {
-      setFormData({
-        ...formData,
-        supplier: supplierId,
-        supplierName: supplier.name || ''
-      });
-    } else {
-      setFormData({
-        ...formData,
-        supplier: supplierId,
-        supplierName: ''
-      });
-    }
+    console.log('Selected supplier ID:', supplierId);
+    console.log('Available suppliers:', suppliers);
+    const supplier = suppliers.find(s => (s.id || s.supplierId) === supplierId);
+    console.log('Found supplier:', supplier);
+    setFormData(prev => ({
+      ...prev,
+      supplier: supplierId,
+      supplierName: supplier?.name || ''
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -99,26 +92,27 @@ const AddStock = () => {
 
     try {
       const stockData = {
+        stockId: generateStockId(),
         productId: formData.productId,
         itemName: formData.productName,
         category: formData.category,
         quantity: parseInt(formData.quantity),
         location: formData.location,
         supplier: formData.supplier,
-        batchNumber: formData.batchNumber
+        batchNumber: formData.batchNumber || generateBatchNumber()
       };
 
       const result = await stockService.addStock(stockData);
       
       if (result.success) {
-        alert('Stock added successfully!');
+        showSuccessMessage('Stock added successfully!');
         navigate('/dashboard/overview');
       } else {
-        alert(result.error || 'Failed to add stock');
+        showErrorMessage(result.error || 'Failed to add stock');
       }
     } catch (error) {
       console.error('Error adding stock:', error);
-      alert('Failed to add stock');
+      showErrorMessage('Failed to add stock');
     } finally {
       setLoading(false);
     }
@@ -135,18 +129,34 @@ const AddStock = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/overview')}>
-          <ArrowLeft size={20} />
-          Back to Stock Summary
-        </button>
-        <div className="page-title">
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/overview')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
           <h1>Add New Stock</h1>
-          <p>Add stock items to your inventory</p>
         </div>
+        <button 
+          className="btn btn-primary"
+          onClick={() => navigate('/dashboard/products/add')}
+        >
+          <Plus size={20} />
+          Add Product
+        </button>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <Package size={24} />
+          </div>
+          <div>
+            <h2>Stock Information</h2>
+            <p>Add stock items to your inventory with enhanced mobile experience</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
               <h4><Package size={20} />Product Information</h4>
@@ -159,6 +169,7 @@ const AddStock = () => {
                     value={formData.productId}
                     onChange={(e) => handleProductIdChange(e.target.value)}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Product</option>
                     {products.length === 0 ? (
@@ -181,7 +192,7 @@ const AddStock = () => {
                     value={formData.productName}
                     readOnly
                     placeholder="Auto-filled from product"
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
@@ -194,11 +205,12 @@ const AddStock = () => {
                     value={formData.category}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Category</option>
-                    <option value="A">Category A</option>
-                    <option value="B">Category B</option>
-                    <option value="C">Category C</option>
+                    <option value="A">Category A - Premium</option>
+                    <option value="B">Category B - Standard</option>
+                    <option value="C">Category C - Basic</option>
                   </select>
                 </div>
                 <div className="form-group">
@@ -212,6 +224,7 @@ const AddStock = () => {
                     required
                     min="1"
                     placeholder="Enter quantity"
+                    className={formData.quantity ? 'filled' : ''}
                   />
                 </div>
               </div>
@@ -228,6 +241,7 @@ const AddStock = () => {
                     value={formData.location}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Location</option>
                     <option value="Warehouse A">Warehouse A</option>
@@ -242,14 +256,15 @@ const AddStock = () => {
                     name="supplier"
                     value={formData.supplier}
                     onChange={(e) => handleSupplierIdChange(e.target.value)}
+                    className="enhanced-select"
                   >
                     <option value="">Select Supplier</option>
                     {suppliers.length === 0 ? (
                       <option disabled>No suppliers available - Add supplier first</option>
                     ) : (
                       suppliers.map((supplier) => (
-                        <option key={supplier.supplierId || supplier.id} value={supplier.supplierId || supplier.id}>
-                          {supplier.supplierId || supplier.id} - {supplier.name}
+                        <option key={supplier.id || supplier.supplierId} value={supplier.id || supplier.supplierId}>
+                          {supplier.id || supplier.supplierId} - {supplier.name}
                         </option>
                       ))
                     )}
@@ -265,8 +280,8 @@ const AddStock = () => {
                     name="supplierName"
                     value={formData.supplierName}
                     readOnly
-                    placeholder="Auto-filled from supplier"
-                    style={{ background: '#f3f4f6' }}
+                    placeholder={formData.supplierName ? '' : 'Auto-filled from supplier'}
+                    className={formData.supplierName ? 'barcode-input filled' : 'barcode-input'}
                   />
                 </div>
               </div>
@@ -283,18 +298,12 @@ const AddStock = () => {
                     name="batchNumber"
                     value={formData.batchNumber}
                     onChange={handleChange}
-                    placeholder="Enter batch number"
+                    placeholder="Enter custom batch or leave empty for auto-generation"
+                    className={formData.batchNumber ? 'filled' : ''}
                   />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="expiryDate">Expiry Date</label>
-                  <input
-                    type="date"
-                    id="expiryDate"
-                    name="expiryDate"
-                    value={formData.expiryDate}
-                    onChange={handleChange}
-                  />
+                  <small style={{ color: '#64748b', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                    Leave empty to auto-generate 6-digit batch number
+                  </small>
                 </div>
               </div>
             </div>
@@ -305,16 +314,17 @@ const AddStock = () => {
               type="button" 
               className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/overview')}
+              disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={loading}
+              disabled={loading || !formData.productId || !formData.quantity || !formData.location}
             >
               <Save size={18} />
-              {loading ? 'Saving...' : 'Add Stock'}
+              {loading ? 'Adding Stock...' : 'Add Stock'}
             </button>
           </div>
         </form>

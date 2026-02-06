@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Truck, Phone, MapPin, Star } from 'lucide-react';
+import { ArrowLeft, Save, Truck, Phone, MapPin, Star, Mail } from 'lucide-react';
+import { courierService } from '../services/courierService';
+import { generateCourierId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
+import '../styles/Forms.css';
+import '../styles/ToggleButton.css';
 
 const AddCourier = () => {
   const navigate = useNavigate();
@@ -22,13 +27,32 @@ const AddCourier = () => {
     setLoading(true);
 
     try {
-      // TODO: Implement courier service API call
-      console.log('Adding courier:', formData);
-      alert('Courier added successfully!');
-      navigate('/dashboard/couriers');
+      const courierData = {
+        courierId: generateCourierId(),
+        name: formData.name,
+        contactPerson: formData.contactPerson,
+        phone: formData.phone,
+        email: formData.email,
+        address: formData.address,
+        serviceType: formData.serviceType,
+        pricing: parseFloat(formData.pricing),
+        rating: parseFloat(formData.rating),
+        isActive: formData.isActive
+      };
+
+      const result = await courierService.createCourier(courierData);
+      
+      if (result.success) {
+        showSuccessMessage('Courier added successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/couriers');
+        }, 2000);
+      } else {
+        showErrorMessage(result.error || 'Failed to add courier');
+      }
     } catch (error) {
       console.error('Error adding courier:', error);
-      alert('Failed to add courier');
+      showErrorMessage('Failed to add courier');
     } finally {
       setLoading(false);
     }
@@ -45,21 +69,33 @@ const AddCourier = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/couriers')}>
-          <ArrowLeft size={20} />
-          Back to Couriers
-        </button>
-        <div className="page-title">
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/couriers')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
           <h1>Add New Courier</h1>
-          <p>Add a new courier service provider</p>
         </div>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <Truck size={24} />
+          </div>
+          <div>
+            <h2>Courier Service Information</h2>
+            <p>Add a new courier service provider to your network</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
-              <h4><Truck size={20} />Company Information</h4>
+              <h4>
+                <Truck size={20} />
+                Company Information
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="name">Company Name *</label>
@@ -71,6 +107,7 @@ const AddCourier = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter company name"
+                    className={formData.name ? 'filled' : ''}
                   />
                 </div>
                 <div className="form-group">
@@ -83,6 +120,7 @@ const AddCourier = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter contact person name"
+                    className={formData.contactPerson ? 'filled' : ''}
                   />
                 </div>
               </div>
@@ -95,6 +133,7 @@ const AddCourier = () => {
                     value={formData.serviceType}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Service Type</option>
                     <option value="Express">Express Delivery</option>
@@ -105,66 +144,89 @@ const AddCourier = () => {
                 </div>
                 <div className="form-group">
                   <label htmlFor="pricing">Pricing (per kg) *</label>
-                  <input
-                    type="number"
-                    id="pricing"
-                    name="pricing"
-                    value={formData.pricing}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    placeholder="Enter price per kg"
-                  />
+                  <div className="input-with-icon">
+                    <span style={{ position: 'absolute', left: '0.875rem', color: '#9ca3af', zIndex: 1 }}>$</span>
+                    <input
+                      type="number"
+                      id="pricing"
+                      name="pricing"
+                      value={formData.pricing}
+                      onChange={handleChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      className={formData.pricing ? 'filled' : ''}
+                      style={{ paddingLeft: '2.75rem' }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Phone size={20} />Contact Information</h4>
+              <h4>
+                <Phone size={20} />
+                Contact Information
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="phone">Phone Number *</label>
-                  <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter phone number"
-                  />
+                  <div className="input-with-icon">
+                    <Phone size={18} />
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter phone number"
+                      className={formData.phone ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="email">Email Address</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Enter email address"
-                  />
+                  <div className="input-with-icon">
+                    <Mail size={18} />
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="Enter email address"
+                      className={formData.email ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label htmlFor="address">Address *</label>
-                  <textarea
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                    placeholder="Enter complete address"
-                    rows="3"
-                  />
+                  <div className="input-with-icon">
+                    <MapPin size={18} />
+                    <textarea
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleChange}
+                      required
+                      placeholder="Enter complete address"
+                      rows="3"
+                      className={formData.address ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Star size={20} />Service Details</h4>
+              <h4>
+                <Star size={20} />
+                Service Details
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="rating">Rating (1-5) *</label>
@@ -174,6 +236,7 @@ const AddCourier = () => {
                     value={formData.rating}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
                     <option value="5">5 - Excellent</option>
                     <option value="4">4 - Very Good</option>
@@ -183,17 +246,20 @@ const AddCourier = () => {
                   </select>
                 </div>
                 <div className="form-group">
-                  <label htmlFor="isActive">Status *</label>
-                  <select
-                    id="isActive"
-                    name="isActive"
-                    value={formData.isActive ? 'active' : 'inactive'}
-                    onChange={(e) => setFormData({...formData, isActive: e.target.value === 'active'})}
-                    required
-                  >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                  </select>
+                  <label htmlFor="isActive">Status</label>
+                  <div className="toggle-wrapper">
+                    <label className="toggle-switch">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                    <div className={`toggle-status ${formData.isActive ? 'active' : 'inactive'}`}>
+                      {formData.isActive ? 'Active' : 'Inactive'}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -204,16 +270,17 @@ const AddCourier = () => {
               type="button" 
               className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/couriers')}
+              disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={loading}
+              disabled={loading || !formData.name || !formData.contactPerson || !formData.phone || !formData.address || !formData.serviceType || !formData.pricing}
             >
               <Save size={18} />
-              {loading ? 'Saving...' : 'Add Courier'}
+              {loading ? 'Adding Courier...' : 'Add Courier'}
             </button>
           </div>
         </form>

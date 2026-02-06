@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, Package, Hash, DollarSign, Barcode } from 'lucide-react';
+import { ArrowLeft, Save, Package, Hash, DollarSign, Barcode, Sparkles } from 'lucide-react';
 import { productService } from '../services/productService';
 import { generateBarcode } from '../utils/generators';
+import { generateProductId } from '../utils/idGenerator';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
 import '../styles/Forms.css';
 
 const AddProduct = () => {
@@ -28,7 +30,7 @@ const AddProduct = () => {
     try {
       const productData = {
         name: formData.name,
-        productId: formData.unitId || `P${Date.now()}`,
+        productId: formData.unitId || generateProductId(),
         category: formData.category,
         barcode: formData.barcode,
         quantity: parseInt(formData.quantity),
@@ -38,14 +40,16 @@ const AddProduct = () => {
       const result = await productService.createProduct(productData);
       
       if (result.success) {
-        alert('Product added successfully!');
-        navigate('/dashboard/products');
+        showSuccessMessage('Product added successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/products');
+        }, 2000);
       } else {
-        alert(result.error || 'Failed to add product');
+        showErrorMessage(result.error || 'Failed to add product');
       }
     } catch (error) {
       console.error('Error adding product:', error);
-      alert('Failed to add product');
+      showErrorMessage('Failed to add product');
     } finally {
       setLoading(false);
     }
@@ -59,29 +63,40 @@ const AddProduct = () => {
     }));
   };
 
+  const generateNewBarcode = () => {
+    setFormData(prev => ({ ...prev, barcode: generateBarcode() }));
+  };
+
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/products')}>
-          <ArrowLeft size={20} />
-          Back to Products
-        </button>
-        <div className="page-title">
-          <h1>
-            <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', marginRight: '12px', verticalAlign: 'middle' }}>
-              <Package size={20} color="#fff" />
-            </span>
-            Add New Product
-          </h1>
-          <p>Add products to your inventory catalog</p>
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/products')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
+          <h1>Add New Product</h1>
         </div>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <Package size={24} />
+          </div>
+          <div>
+            <h2>Product Information</h2>
+            <p>Add products to your inventory catalog with enhanced mobile experience</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
-              <h4><Package size={20} />Product Information</h4>
+              <h4>
+                <Package size={20} />
+                Basic Information
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="name">Product Name *</label>
@@ -93,6 +108,7 @@ const AddProduct = () => {
                     onChange={handleChange}
                     required
                     placeholder="Enter product name"
+                    className={formData.name ? 'filled' : ''}
                   />
                 </div>
                 <div className="form-group">
@@ -103,41 +119,56 @@ const AddProduct = () => {
                     value={formData.category}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                   >
-                    <option value="A">Category A</option>
-                    <option value="B">Category B</option>
-                    <option value="C">Category C</option>
+                    <option value="A">Category A - Premium</option>
+                    <option value="B">Category B - Standard</option>
+                    <option value="C">Category C - Basic</option>
                   </select>
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Hash size={20} />Product Details</h4>
+              <h4>
+                <Hash size={20} />
+                Product Details
+              </h4>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="unitId">Unit ID</label>
+                  <label htmlFor="unitId">Unit ID (Optional)</label>
                   <input
                     type="text"
                     id="unitId"
                     name="unitId"
                     value={formData.unitId}
                     onChange={handleChange}
-                    placeholder="Enter unit ID"
+                    placeholder="Auto-generated if empty"
+                    className={formData.unitId ? 'filled' : ''}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="barcode">Barcode (Auto-generated)</label>
-                  <div className="input-with-icon">
-                    <Barcode size={18} />
-                    <input
-                      type="text"
-                      id="barcode"
-                      name="barcode"
-                      value={formData.barcode}
-                      disabled
-                      style={{ paddingLeft: '2.5rem', background: '#f3f4f6', fontWeight: 'bold' }}
-                    />
+                  <label htmlFor="barcode">Barcode</label>
+                  <div className="input-group">
+                    <div className="input-with-icon">
+                      <Barcode size={18} />
+                      <input
+                        type="text"
+                        id="barcode"
+                        name="barcode"
+                        value={formData.barcode}
+                        disabled
+                        className="barcode-input"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm"
+                      onClick={generateNewBarcode}
+                      title="Generate new barcode"
+                    >
+                      <Sparkles size={16} />
+                    </button>
                   </div>
                 </div>
                 <div className="form-group">
@@ -150,29 +181,45 @@ const AddProduct = () => {
                     onChange={handleChange}
                     required
                     min="0"
-                    placeholder="Enter quantity"
+                    placeholder="0"
+                    className={formData.quantity ? 'filled' : ''}
                   />
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><DollarSign size={20} />Pricing</h4>
+              <h4>
+                <DollarSign size={20} />
+                Pricing Information
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="price">Unit Price *</label>
-                  <input
-                    type="number"
-                    id="price"
-                    name="price"
-                    value={formData.price}
-                    onChange={handleChange}
-                    required
-                    min="0"
-                    step="0.01"
-                    placeholder="Enter price"
-                  />
+                  <div className="input-with-icon">
+                    <DollarSign size={18} />
+                    <input
+                      type="number"
+                      id="price"
+                      name="price"
+                      value={formData.price}
+                      onChange={handleChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      className={formData.price ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
+                {formData.quantity && formData.price && (
+                  <div className="form-group">
+                    <label>Total Value</label>
+                    <div className="calculated-value">
+                      ${(parseFloat(formData.quantity || 0) * parseFloat(formData.price || 0)).toFixed(2)}
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -182,16 +229,17 @@ const AddProduct = () => {
               type="button" 
               className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/products')}
+              disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
               className="btn btn-primary" 
-              disabled={loading}
+              disabled={loading || !formData.name || !formData.quantity || !formData.price}
             >
               <Save size={18} />
-              {loading ? 'Confirming...' : 'Confirm'}
+              {loading ? 'Adding Product...' : 'Add Product'}
             </button>
           </div>
         </form>

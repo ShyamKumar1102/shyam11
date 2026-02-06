@@ -1,13 +1,18 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, TrendingUp, TrendingDown, Package, AlertTriangle, Box, Search } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, Package, AlertTriangle, Box, Search, BarChart3, Eye } from 'lucide-react';
 import { stockService } from '../services/productService';
+import ViewModal from './ViewModal';
+import StatusBadge from './StatusBadge';
+import CategoryBadge from './CategoryBadge';
+import Badge from './Badge';
 import '../styles/Stock.css';
 
 const Stock = () => {
   const [stockData, setStockData] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [viewModal, setViewModal] = useState({ isOpen: false, stock: null });
 
   useEffect(() => {
     fetchStockData();
@@ -17,40 +22,67 @@ const Stock = () => {
     try {
       const result = await stockService.getStock();
       if (result.success) {
-        setStockData(result.data);
+        setStockData(Array.isArray(result.data) ? result.data : []);
       } else {
+        setStockData([]);
         alert(result.error || 'Failed to fetch stock');
       }
     } catch (error) {
       console.error('Error fetching stock data:', error);
+      setStockData([]);
       alert('Failed to fetch stock data');
     } finally {
       setLoading(false);
     }
   };
 
+  const handleView = (stock) => {
+    setViewModal({ isOpen: true, stock });
+  };
+
+  const stockFields = [
+    { label: 'Product ID', key: 'productId' },
+    { label: 'Product Name', key: 'itemName' },
+    { label: 'Stock Unit ID', key: 'stockUnitId' },
+    { label: 'Current Stock', key: 'currentStock' },
+    { label: 'Category', key: 'category' },
+    { label: 'Location', key: 'location' },
+    { label: 'Supplier', key: 'supplier' },
+    { label: 'Status', key: 'status' }
+  ];
+
   const totalProducts = stockData.length;
-  const lowStockItems = stockData.filter(item => (item.quantity || item.currentStock) < 20);
-  const maxStockItem = stockData.reduce((max, item) => {
+  const lowStockItems = Array.isArray(stockData) ? stockData.filter(item => (item.quantity || item.currentStock) < 20) : [];
+  const maxStockItem = Array.isArray(stockData) ? stockData.reduce((max, item) => {
     const qty = item.quantity || item.maxStock || 0;
     return qty > (max?.quantity || max?.maxStock || 0) ? item : max;
-  }, null);
+  }, null) : null;
 
-  const filteredStockData = stockData.filter(item =>
+  const filteredStockData = Array.isArray(stockData) ? stockData.filter(item =>
     (item.productId || item.id || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.itemName || item.productName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
     (item.stockUnitId || '').toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) : [];
 
   if (loading) {
     return <div className="loading">Loading stock data...</div>;
   }
 
+  // Prepare stock data for modal
+  const modalStock = viewModal.stock ? {
+    ...viewModal.stock,
+    productId: viewModal.stock.productId || viewModal.stock.id,
+    itemName: viewModal.stock.itemName || viewModal.stock.productName,
+    stockUnitId: viewModal.stock.stockUnitId || viewModal.stock.id,
+    currentStock: `${viewModal.stock.quantity || viewModal.stock.currentStock || 0} units`,
+    status: (viewModal.stock.quantity || viewModal.stock.currentStock || 0) < 20 ? 'Critical' : 'Good'
+  } : null;
+
   return (
     <div className="page-container">
       <div className="page-header">
         <div className="page-title">
-          <h1>📊 Stock Summary</h1>
+          <h1><BarChart3 size={20} style={{ marginRight: '8px' }} />Stock Summary</h1>
           <p>Overview of inventory stock levels and statistics</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -126,6 +158,7 @@ const Stock = () => {
                 <th>Location</th>
                 <th>Supplier</th>
                 <th>Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -146,30 +179,33 @@ const Stock = () => {
                       <span>{productName}</span>
                     </div>
                   </td>
-                  <td>{stockUnitId}</td>
+                  <td><Badge variant="purple">{stockUnitId}</Badge></td>
                   <td>
-                    <span className={`stock-badge ${currentStock < 20 ? 'low' : currentStock < 50 ? 'medium' : 'high'}`}>
-                      {currentStock} units
-                    </span>
+                    <Badge variant="purple">{currentStock} units</Badge>
                   </td>
                   <td>
-                    <span className={`category category-${(item.category || 'a').toLowerCase()}`}>
-                      {item.category || 'N/A'}
-                    </span>
+                    <CategoryBadge category={item.category || 'N/A'} />
                   </td>
-                  <td>{item.location || 'N/A'}</td>
-                  <td>{item.supplier || '-'}</td>
+                  <td>{item.location ? <Badge variant="cyan">{item.location}</Badge> : <Badge variant="gray">N/A</Badge>}</td>
+                  <td>{item.supplier ? <Badge variant="teal">{item.supplier}</Badge> : <Badge variant="gray">-</Badge>}</td>
                   <td>
-                    <span className={`status-badge ${currentStock < 20 ? 'warning' : 'success'}`}>
-                      {currentStock < 20 ? 'Critical' : 'Good'}
-                    </span>
+                    <StatusBadge status={currentStock < 20 ? 'Critical' : 'Good'} />
+                  </td>
+                  <td>
+                    <button 
+                      className="btn-icon view"
+                      onClick={() => handleView(item)}
+                      title="View Stock Details"
+                    >
+                      <Eye size={16} />
+                    </button>
                   </td>
                 </tr>
                   );
                 })
               ) : (
                 <tr>
-                  <td colSpan="8" style={{ textAlign: 'center', padding: '2rem' }}>
+                  <td colSpan="9" style={{ textAlign: 'center', padding: '2rem' }}>
                     No stock items found
                   </td>
                 </tr>
@@ -178,6 +214,14 @@ const Stock = () => {
           </table>
         </div>
       </div>
+      
+      <ViewModal
+        isOpen={viewModal.isOpen}
+        onClose={() => setViewModal({ isOpen: false, stock: null })}
+        title="Stock Details"
+        data={modalStock}
+        fields={stockFields}
+      />
     </div>
   );
 };
