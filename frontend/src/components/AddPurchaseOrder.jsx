@@ -73,7 +73,8 @@ const AddPurchaseOrder = () => {
 
   const testAPI = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/purchase-orders/test');
+      const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+      const response = await fetch(`${API_URL}/purchase-orders/test`);
       const result = await response.json();
       console.log('API test result:', result);
       alert('API Test: ' + result.message);
