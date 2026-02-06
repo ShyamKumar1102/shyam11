@@ -12,6 +12,7 @@ const AddPurchaseOrder = () => {
   const [loading, setLoading] = useState(false);
   const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     supplierId: '',
     supplierName: '',
@@ -40,10 +41,12 @@ const AddPurchaseOrder = () => {
       } else {
         console.error('Failed to fetch suppliers:', result.error);
         setSuppliers([]);
+        setError('Failed to load suppliers. You can still create an order.');
       }
     } catch (error) {
       console.error('Error fetching suppliers:', error);
       setSuppliers([]);
+      setError('Failed to load suppliers. You can still create an order.');
     }
   };
 
@@ -135,6 +138,18 @@ const AddPurchaseOrder = () => {
       </div>
 
       <div className="form-container">
+        {error && (
+          <div style={{
+            background: '#fef2f2',
+            border: '1px solid #fca5a5',
+            borderRadius: '8px',
+            padding: '12px',
+            marginBottom: '20px',
+            color: '#dc2626'
+          }}>
+            {error}
+          </div>
+        )}
         <div className="form-header">
           <div className="form-icon">
             <ShoppingCart size={24} />
