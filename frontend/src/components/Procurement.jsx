@@ -150,7 +150,7 @@ const Procurement = () => {
           </button>
           <button 
             className="btn btn-primary"
-            onClick={() => navigate('/dashboard/add-purchase-order')}
+            onClick={() => navigate('/dashboard/purchase-orders/add')}
           >
             <ShoppingCart size={20} />
             Add Purchase Order
