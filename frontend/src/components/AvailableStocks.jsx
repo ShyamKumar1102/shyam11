@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Package, Search, Eye, AlertTriangle } from 'lucide-react';
-import { stockService } from '../services/productService';
+import { stockService, productService } from '../services/productService';
 import ViewModal from './ViewModal';
 import StatusBadge from './StatusBadge';
 import CategoryBadge from './CategoryBadge';
@@ -21,11 +21,17 @@ const AvailableStocks = () => {
 
   const fetchAvailableStocks = async () => {
     try {
-      const result = await stockService.getStock();
-      if (result.success) {
-        setStocks(result.data);
+      const [stockResult, productResult] = await Promise.all([
+        stockService.getStock(),
+        productService.getProducts()
+      ]);
+      
+      if (stockResult.success && productResult.success) {
+        const productIds = new Set(productResult.data.map(p => p.id));
+        const validStocks = stockResult.data.filter(stock => productIds.has(stock.productId));
+        setStocks(validStocks);
       } else {
-        console.error('Failed to fetch stocks:', result.error);
+        console.error('Failed to fetch stocks:', stockResult.error || productResult.error);
       }
     } catch (error) {
       console.error('Error fetching available stocks:', error);

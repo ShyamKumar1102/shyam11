@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, TrendingUp, TrendingDown, Package, AlertTriangle, Box, Search, BarChart3, Eye } from 'lucide-react';
-import { stockService } from '../services/productService';
+import { stockService, productService } from '../services/productService';
 import ViewModal from './ViewModal';
 import StatusBadge from './StatusBadge';
 import CategoryBadge from './CategoryBadge';
@@ -20,12 +20,18 @@ const Stock = () => {
 
   const fetchStockData = async () => {
     try {
-      const result = await stockService.getStock();
-      if (result.success) {
-        setStockData(Array.isArray(result.data) ? result.data : []);
+      const [stockResult, productResult] = await Promise.all([
+        stockService.getStock(),
+        productService.getProducts()
+      ]);
+      
+      if (stockResult.success && productResult.success) {
+        const productIds = new Set(productResult.data.map(p => p.id));
+        const validStocks = stockResult.data.filter(stock => productIds.has(stock.productId));
+        setStockData(validStocks);
       } else {
         setStockData([]);
-        alert(result.error || 'Failed to fetch stock');
+        alert(stockResult.error || productResult.error || 'Failed to fetch stock');
       }
     } catch (error) {
       console.error('Error fetching stock data:', error);
