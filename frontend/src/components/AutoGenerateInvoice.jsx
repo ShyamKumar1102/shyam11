@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Save, FileText, User, Package, Calculator } from 'lucide-react';
+import { ArrowLeft, Save, FileText, User, Package, Calculator, Calendar, Trash2 } from 'lucide-react';
 import { invoiceService } from '../services/billingService';
 import { customerService } from '../services/userService';
 import { productService } from '../services/productService';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
+import '../styles/Forms.css';
 
 const AutoGenerateInvoice = () => {
   const navigate = useNavigate();
@@ -155,14 +157,16 @@ const AutoGenerateInvoice = () => {
 
       const result = await invoiceService.createInvoice(invoiceData);
       if (result.success) {
-        alert(`Invoice ${formData.invoiceId} created successfully!`);
-        navigate('/dashboard/billing/invoice');
+        showSuccessMessage(`Invoice ${formData.invoiceId} created successfully!`);
+        setTimeout(() => {
+          navigate('/dashboard/billing/invoice');
+        }, 2000);
       } else {
-        alert('Failed to create invoice');
+        showErrorMessage('Failed to create invoice');
       }
     } catch (error) {
       console.error('Error creating invoice:', error);
-      alert('Failed to create invoice');
+      showErrorMessage('Failed to create invoice');
     } finally {
       setLoading(false);
     }
@@ -176,21 +180,33 @@ const AutoGenerateInvoice = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/billing/invoice')}>
-          <ArrowLeft size={20} />
-          Back to Invoices
-        </button>
-        <div className="page-title">
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/billing/invoice')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
           <h1>Auto Generate Invoice</h1>
-          <p>Create invoice with auto-generated ID and product selection</p>
         </div>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <FileText size={24} />
+          </div>
+          <div>
+            <h2>Auto-Generate Invoice</h2>
+            <p>Create invoice with auto-generated ID and product selection</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
-              <h4><FileText size={20} />Invoice Details</h4>
+              <h4>
+                <FileText size={20} />
+                Invoice Details
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="invoiceId">Invoice ID</label>
@@ -200,32 +216,40 @@ const AutoGenerateInvoice = () => {
                     name="invoiceId"
                     value={formData.invoiceId}
                     readOnly
-                    style={{ background: '#f3f4f6', fontWeight: 'bold' }}
+                    className="barcode-input"
                   />
                 </div>
                 <div className="form-group">
                   <label htmlFor="invoiceDate">Invoice Date *</label>
-                  <input
-                    type="date"
-                    id="invoiceDate"
-                    name="invoiceDate"
-                    value={formData.invoiceDate}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Calendar size={18} />
+                    <input
+                      type="date"
+                      id="invoiceDate"
+                      name="invoiceDate"
+                      value={formData.invoiceDate}
+                      onChange={handleChange}
+                      required
+                      className={formData.invoiceDate ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="dueDate">Due Date *</label>
-                  <input
-                    type="date"
-                    id="dueDate"
-                    name="dueDate"
-                    value={formData.dueDate}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Calendar size={18} />
+                    <input
+                      type="date"
+                      id="dueDate"
+                      name="dueDate"
+                      value={formData.dueDate}
+                      onChange={handleChange}
+                      required
+                      className={formData.dueDate ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="taxRate">Tax Rate (%)</label>
@@ -238,13 +262,17 @@ const AutoGenerateInvoice = () => {
                     min="0"
                     max="100"
                     step="0.1"
+                    className={formData.taxRate ? 'filled' : ''}
                   />
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><User size={20} />Customer Information</h4>
+              <h4>
+                <User size={20} />
+                Customer Information
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="customerId">Customer *</label>
@@ -254,6 +282,7 @@ const AutoGenerateInvoice = () => {
                     value={formData.customerId}
                     onChange={(e) => handleCustomerChange(e.target.value)}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Customer</option>
                     {customers.length === 0 ? (
@@ -276,14 +305,17 @@ const AutoGenerateInvoice = () => {
                     value={formData.customerName}
                     readOnly
                     placeholder="Auto-filled from customer"
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Package size={20} />Product Selection</h4>
+              <h4>
+                <Package size={20} />
+                Product Selection
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="productSelect">Add Product</label>
@@ -291,6 +323,7 @@ const AutoGenerateInvoice = () => {
                     id="productSelect"
                     onChange={(e) => handleProductSelect(e.target.value)}
                     value=""
+                    className="enhanced-select"
                   >
                     <option value="">Select Product to Add</option>
                     {products.length === 0 ? (
@@ -308,58 +341,55 @@ const AutoGenerateInvoice = () => {
 
               {formData.selectedProducts.length > 0 && (
                 <div style={{ marginTop: '1rem' }}>
-                  <h5>Selected Products:</h5>
                   {formData.selectedProducts.map((product) => (
                     <div key={product.id} style={{ 
                       display: 'flex', 
                       gap: '1rem', 
-                      alignItems: 'center', 
+                      alignItems: 'end', 
                       padding: '1rem', 
                       border: '1px solid #e5e7eb', 
                       borderRadius: '8px', 
                       marginBottom: '0.5rem',
                       background: '#f8fafc'
                     }}>
-                      <div style={{ flex: '2', fontWeight: 'bold' }}>
-                        {product.name}
+                      <div className="form-group" style={{ flex: '2' }}>
+                        <label>Product</label>
+                        <div style={{ padding: '0.75rem', background: 'white', borderRadius: '6px', fontWeight: '600' }}>
+                          {product.name}
+                        </div>
                       </div>
-                      <div style={{ flex: '1' }}>
-                        <label style={{ fontSize: '0.875rem', marginBottom: '0.25rem', display: 'block' }}>Quantity</label>
+                      <div className="form-group" style={{ flex: '1' }}>
+                        <label>Quantity</label>
                         <input
                           type="number"
                           value={product.quantity}
                           onChange={(e) => updateProductQuantity(product.id, e.target.value)}
                           min="1"
-                          style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px' }}
                         />
                       </div>
-                      <div style={{ flex: '1' }}>
-                        <label style={{ fontSize: '0.875rem', marginBottom: '0.25rem', display: 'block' }}>Price</label>
+                      <div className="form-group" style={{ flex: '1' }}>
+                        <label>Price</label>
                         <input
                           type="number"
                           value={product.price}
                           onChange={(e) => updateProductPrice(product.id, e.target.value)}
                           min="0"
                           step="0.01"
-                          style={{ width: '100%', padding: '0.5rem', border: '1px solid #d1d5db', borderRadius: '4px' }}
                         />
                       </div>
-                      <div style={{ flex: '1', textAlign: 'center', fontWeight: 'bold' }}>
-                        ${(product.quantity * product.price).toFixed(2)}
+                      <div className="form-group" style={{ flex: '1' }}>
+                        <label>Total</label>
+                        <div style={{ padding: '0.75rem', background: '#dbeafe', borderRadius: '6px', fontWeight: 'bold', color: '#1e40af' }}>
+                          ${(product.quantity * product.price).toFixed(2)}
+                        </div>
                       </div>
                       <button
                         type="button"
+                        className="btn-icon delete"
                         onClick={() => removeProduct(product.id)}
-                        style={{ 
-                          background: '#ef4444', 
-                          color: 'white', 
-                          border: 'none', 
-                          padding: '0.5rem', 
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
+                        style={{ marginBottom: '0' }}
                       >
-                        Remove
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   ))}
@@ -368,7 +398,10 @@ const AutoGenerateInvoice = () => {
             </div>
 
             <div className="form-section">
-              <h4><Calculator size={20} />Invoice Summary</h4>
+              <h4>
+                <Calculator size={20} />
+                Invoice Summary
+              </h4>
               <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <span>Subtotal:</span>
@@ -392,7 +425,7 @@ const AutoGenerateInvoice = () => {
               </div>
               
               <div className="form-row" style={{ marginTop: '1rem' }}>
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label htmlFor="notes">Notes</label>
                   <textarea
                     id="notes"
@@ -401,6 +434,7 @@ const AutoGenerateInvoice = () => {
                     onChange={handleChange}
                     placeholder="Add any additional notes..."
                     rows="3"
+                    className={formData.notes ? 'filled' : ''}
                   />
                 </div>
               </div>
@@ -412,6 +446,7 @@ const AutoGenerateInvoice = () => {
               type="button" 
               className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/billing/invoice')}
+              disabled={loading}
             >
               Cancel
             </button>
