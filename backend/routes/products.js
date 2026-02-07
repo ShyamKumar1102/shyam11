@@ -103,12 +103,28 @@ router.put('/:id', async (req, res) => {
 // Delete product
 router.delete('/:id', async (req, res) => {
   try {
+    // First, delete all stock items related to this product
+    const stockResult = await docClient.send(new ScanCommand({
+      TableName: process.env.STOCK_TABLE,
+      FilterExpression: 'productId = :productId',
+      ExpressionAttributeValues: { ':productId': req.params.id }
+    }));
+
+    // Delete each stock item
+    for (const stock of stockResult.Items || []) {
+      await docClient.send(new DeleteCommand({
+        TableName: process.env.STOCK_TABLE,
+        Key: { id: stock.id }
+      }));
+    }
+
+    // Then delete the product
     await docClient.send(new DeleteCommand({
       TableName: process.env.PRODUCTS_TABLE,
       Key: { id: req.params.id }
     }));
     
-    res.json({ success: true, message: 'Product deleted successfully' });
+    res.json({ success: true, message: 'Product and related stock deleted successfully' });
   } catch (error) {
     console.error('Error deleting product:', error);
     res.status(500).json({ success: false, error: 'Failed to delete product' });
