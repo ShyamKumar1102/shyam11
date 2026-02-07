@@ -17,13 +17,24 @@ const DispatchHistory = () => {
 
   const fetchDispatchHistory = async () => {
     try {
+      const token = localStorage.getItem('authToken');
+      console.log('Auth token exists:', !!token);
+      if (!token) {
+        console.error('No auth token found');
+        setDispatchHistory([]);
+        setLoading(false);
+        return;
+      }
       const result = await dispatchService.getDispatchHistory();
+      console.log('Dispatch history result:', result);
       if (result.success) {
         setDispatchHistory(result.data || []);
       } else {
+        console.error('Failed to fetch:', result.error);
         setDispatchHistory([]);
       }
     } catch (error) {
+      console.error('Fetch error:', error);
       setDispatchHistory([]);
     } finally {
       setLoading(false);
@@ -52,6 +63,52 @@ const DispatchHistory = () => {
         <div className="page-title">
           <h1>📋 Dispatch History</h1>
           <p>View complete dispatch records and delivery status</p>
+        </div>
+      </div>
+
+      <div className="stats-grid">
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#e0e7ff' }}>
+            <Package size={24} color="#6366f1" />
+          </div>
+          <div className="stat-content">
+            <h3>Total Dispatches</h3>
+            <p className="stat-value">{dispatchHistory.length}</p>
+            <span className="stat-label">All time records</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#d1fae5' }}>
+            <Package size={24} color="#059669" />
+          </div>
+          <div className="stat-content">
+            <h3>Delivered</h3>
+            <p className="stat-value">{dispatchHistory.filter(d => d.status === 'Delivered').length}</p>
+            <span className="stat-label">Successfully delivered</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#fef3c7' }}>
+            <TrendingUp size={24} color="#d97706" />
+          </div>
+          <div className="stat-content">
+            <h3>In Transit</h3>
+            <p className="stat-value">{dispatchHistory.filter(d => d.status === 'In Transit').length}</p>
+            <span className="stat-label">On the way</span>
+          </div>
+        </div>
+
+        <div className="stat-card">
+          <div className="stat-icon" style={{ background: '#fee2e2' }}>
+            <Package size={24} color="#dc2626" />
+          </div>
+          <div className="stat-content">
+            <h3>Pending</h3>
+            <p className="stat-value">{dispatchHistory.filter(d => d.status === 'Pending').length}</p>
+            <span className="stat-label">Awaiting dispatch</span>
+          </div>
         </div>
       </div>
 
@@ -129,71 +186,6 @@ const DispatchHistory = () => {
               )}
             </tbody>
           </table>
-        </div>
-
-        {/* Summary Stats */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-          gap: '1rem', 
-          padding: '1.5rem',
-          borderTop: '1px solid #e5e7eb'
-        }}>
-          <div style={{ 
-            background: 'linear-gradient(135deg, #667eea15 0%, #764ba215 100%)',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-              Total Dispatches
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#1f2937' }}>
-              {dispatchHistory.length}
-            </div>
-          </div>
-          
-          <div style={{ 
-            background: 'linear-gradient(135deg, #d1fae515 0%, #a7f3d015 100%)',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-              Delivered
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#059669' }}>
-              {dispatchHistory.filter(d => d.status === 'Delivered').length}
-            </div>
-          </div>
-          
-          <div style={{ 
-            background: 'linear-gradient(135deg, #fef3c715 0%, #fde68a15 100%)',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-              In Transit
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#d97706' }}>
-              {dispatchHistory.filter(d => d.status === 'In Transit').length}
-            </div>
-          </div>
-          
-          <div style={{ 
-            background: 'linear-gradient(135deg, #fee2e215 0%, #fecaca15 100%)',
-            padding: '1rem',
-            borderRadius: '8px',
-            border: '1px solid #e5e7eb'
-          }}>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginBottom: '0.5rem' }}>
-              Pending
-            </div>
-            <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#dc2626' }}>
-              {dispatchHistory.filter(d => d.status === 'Pending').length}
-            </div>
-          </div>
         </div>
       </div>
     </div>
