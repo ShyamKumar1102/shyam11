@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Save, Truck } from 'lucide-react';
+import { ArrowLeft, Save, Truck, Phone, Mail, MapPin, Star, Settings } from 'lucide-react';
 import { courierService } from '../services/courierService';
-import '../styles/Products.css';
+import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
+import '../styles/Forms.css';
 import '../styles/ToggleButton.css';
 
 const EditCourier = () => {
@@ -62,14 +63,16 @@ const EditCourier = () => {
       });
 
       if (result.success) {
-        alert('Courier updated successfully!');
-        navigate('/dashboard/couriers');
+        showSuccessMessage('Courier updated successfully!');
+        setTimeout(() => {
+          navigate('/dashboard/couriers');
+        }, 2000);
       } else {
-        alert(result.error || 'Failed to update courier');
+        showErrorMessage(result.error || 'Failed to update courier');
       }
     } catch (error) {
       console.error('Error updating courier:', error);
-      alert('Failed to update courier');
+      showErrorMessage('Failed to update courier');
     } finally {
       setLoading(false);
     }
@@ -78,154 +81,195 @@ const EditCourier = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button 
-          className="btn btn-secondary"
-          onClick={() => navigate('/dashboard/couriers')}
-        >
-          <ArrowLeft size={20} />
-          Back to Couriers
-        </button>
-        <div className="page-title">
-          <h1>✏️ Edit Courier</h1>
-          <p>Update courier company information</p>
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/couriers')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
+          <h1>Edit Courier</h1>
         </div>
       </div>
 
       <div className="form-container">
-        <form onSubmit={handleSubmit} className="product-form">
-          <div className="form-section">
-            <h3>
-              <Truck size={20} />
-              Company Information
-            </h3>
-            
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="name">Company Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter company name"
-                />
-              </div>
+        <div className="form-header">
+          <div className="form-icon">
+            <Settings size={24} />
+          </div>
+          <div>
+            <h2>Update Courier Information</h2>
+            <p>Modify courier service provider details</p>
+          </div>
+        </div>
 
-              <div className="form-group">
-                <label htmlFor="contactPerson">Contact Person *</label>
-                <input
-                  type="text"
-                  id="contactPerson"
-                  name="contactPerson"
-                  value={formData.contactPerson}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter contact person name"
-                />
+        <form onSubmit={handleSubmit}>
+          <div className="form-sections">
+            <div className="form-section">
+              <h4>
+                <Truck size={20} />
+                Company Information
+              </h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="name">Company Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter company name"
+                    className={formData.name ? 'filled' : ''}
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="contactPerson">Contact Person *</label>
+                  <input
+                    type="text"
+                    id="contactPerson"
+                    name="contactPerson"
+                    value={formData.contactPerson}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Enter contact person name"
+                    className={formData.contactPerson ? 'filled' : ''}
+                  />
+                </div>
               </div>
-
-              <div className="form-group">
-                <label htmlFor="phone">Phone Number *</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required
-                  placeholder="Enter phone number"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="email">Email Address</label>
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter email address"
-                />
-              </div>
-
-              <div className="form-group full-width">
-                <label htmlFor="address">Address</label>
-                <textarea
-                  id="address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleInputChange}
-                  placeholder="Enter complete address"
-                  rows="3"
-                />
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="serviceType">Service Type *</label>
+                  <select
+                    id="serviceType"
+                    name="serviceType"
+                    value={formData.serviceType}
+                    onChange={handleInputChange}
+                    required
+                    className="enhanced-select"
+                  >
+                    <option value="Express">Express Delivery</option>
+                    <option value="Standard">Standard Delivery</option>
+                    <option value="Economy">Economy Delivery</option>
+                    <option value="International">International</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="pricing">Pricing (per kg) *</label>
+                  <div className="input-with-icon">
+                    <span style={{ position: 'absolute', left: '0.875rem', color: '#9ca3af', zIndex: 1 }}>$</span>
+                    <input
+                      type="number"
+                      id="pricing"
+                      name="pricing"
+                      value={formData.pricing}
+                      onChange={handleInputChange}
+                      required
+                      min="0"
+                      step="0.01"
+                      placeholder="0.00"
+                      className={formData.pricing ? 'filled' : ''}
+                      style={{ paddingLeft: '2.75rem' }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="form-section">
-            <h3>Service Details</h3>
-            
-            <div className="form-grid">
-              <div className="form-group">
-                <label htmlFor="serviceType">Service Type</label>
-                <select
-                  id="serviceType"
-                  name="serviceType"
-                  value={formData.serviceType}
-                  onChange={handleInputChange}
-                >
-                  <option value="Standard">Standard</option>
-                  <option value="Express">Express</option>
-                  <option value="Overnight">Overnight</option>
-                  <option value="International">International</option>
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="pricing">Pricing (per kg)</label>
-                <input
-                  type="number"
-                  id="pricing"
-                  name="pricing"
-                  value={formData.pricing}
-                  onChange={handleInputChange}
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                />
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="rating">Rating (0-5)</label>
-                <input
-                  type="number"
-                  id="rating"
-                  name="rating"
-                  value={formData.rating}
-                  onChange={handleInputChange}
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  placeholder="0.0"
-                />
-              </div>
-
-              <div className="form-group">
-                <label>Active Service</label>
-                <div className="toggle-wrapper">
-                  <label className="toggle-switch">
-                    <input 
-                      type="checkbox" 
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData(prev => ({...prev, isActive: e.target.checked}))}
+            <div className="form-section">
+              <h4>
+                <Phone size={20} />
+                Contact Information
+              </h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="phone">Phone Number *</label>
+                  <div className="input-with-icon">
+                    <Phone size={18} />
+                    <input
+                      type="tel"
+                      id="phone"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter phone number"
+                      className={formData.phone ? 'filled' : ''}
                     />
-                    <span className="toggle-slider"></span>
-                  </label>
-                  <div className={`toggle-status ${formData.isActive ? 'active' : 'inactive'}`}>
-                    {formData.isActive ? 'Active' : 'Inactive'}
+                  </div>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <div className="input-with-icon">
+                    <Mail size={18} />
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email address"
+                      className={formData.email ? 'filled' : ''}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group full-width">
+                  <label htmlFor="address">Address *</label>
+                  <div className="input-with-icon">
+                    <MapPin size={18} />
+                    <textarea
+                      id="address"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter complete address"
+                      rows="3"
+                      className={formData.address ? 'filled' : ''}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="form-section">
+              <h4>
+                <Star size={20} />
+                Service Details
+              </h4>
+              <div className="form-row">
+                <div className="form-group">
+                  <label htmlFor="rating">Rating (1-5) *</label>
+                  <select
+                    id="rating"
+                    name="rating"
+                    value={formData.rating}
+                    onChange={handleInputChange}
+                    required
+                    className="enhanced-select"
+                  >
+                    <option value="5">5 - Excellent</option>
+                    <option value="4">4 - Very Good</option>
+                    <option value="3">3 - Good</option>
+                    <option value="2">2 - Fair</option>
+                    <option value="1">1 - Poor</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="isActive">Status</label>
+                  <div className="toggle-wrapper">
+                    <label className="toggle-switch">
+                      <input 
+                        type="checkbox" 
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
+                      />
+                      <span className="toggle-slider"></span>
+                    </label>
+                    <div className={`toggle-status ${formData.isActive ? 'active' : 'inactive'}`}>
+                      {formData.isActive ? 'Active' : 'Inactive'}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -235,17 +279,18 @@ const EditCourier = () => {
           <div className="form-actions">
             <button 
               type="button" 
-              className="btn btn-secondary"
+              className="btn btn-secondary" 
               onClick={() => navigate('/dashboard/couriers')}
+              disabled={loading}
             >
               Cancel
             </button>
             <button 
               type="submit" 
-              className="btn btn-primary"
-              disabled={loading}
+              className="btn btn-primary" 
+              disabled={loading || !formData.name || !formData.contactPerson || !formData.phone || !formData.address || !formData.serviceType || !formData.pricing}
             >
-              <Save size={20} />
+              <Save size={18} />
               {loading ? 'Updating...' : 'Update Courier'}
             </button>
           </div>
