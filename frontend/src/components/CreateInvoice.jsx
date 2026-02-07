@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Trash2, Save, FileText, User, Calendar, Truck } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, FileText, User, Calendar, Truck, Phone, Mail, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { invoiceService } from '../services/billingService';
 import { customerService } from '../services/userService';
 import { generateInvoiceId } from '../utils/idGenerator';
 import { showSuccessMessage, showErrorMessage } from '../utils/notifications';
-import '../styles/Products.css';
+import '../styles/Forms.css';
 
 const CreateInvoice = () => {
   const navigate = useNavigate();
@@ -142,21 +142,30 @@ const CreateInvoice = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <button className="btn btn-secondary" onClick={() => navigate('/dashboard/billing/invoice')}>
-          <ArrowLeft size={20} />
-          Back to Invoices
-        </button>
-        <div className="page-title">
+        <div className="header-left">
+          <button className="btn-back" onClick={() => navigate('/dashboard/billing/invoice')}>
+            <ArrowLeft size={18} />
+            Back
+          </button>
           <h1>Create Invoice</h1>
-          <p>Generate a new invoice for customer billing</p>
         </div>
       </div>
 
-      <div className="card">
-        <form onSubmit={handleSubmit} className="stock-form">
+      <div className="form-container">
+        <div className="form-header">
+          <div className="form-icon">
+            <FileText size={24} />
+          </div>
+          <div>
+            <h2>Invoice Information</h2>
+            <p>Generate a new invoice for customer billing</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <div className="form-sections">
             <div className="form-section">
-              <h4><FileText size={20} />Invoice Information</h4>
+              <h4><FileText size={20} />Invoice Details</h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="customerId">Customer *</label>
@@ -166,6 +175,7 @@ const CreateInvoice = () => {
                     value={formData.customerId}
                     onChange={(e) => handleCustomerChange(e.target.value)}
                     required
+                    className="enhanced-select"
                   >
                     <option value="">Select Customer</option>
                     {customers.length === 0 ? (
@@ -187,6 +197,7 @@ const CreateInvoice = () => {
                     value={formData.customerType}
                     onChange={handleChange}
                     required
+                    className="enhanced-select"
                     style={{
                       background: formData.customerType === 'registered' ? 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)' :
                                  formData.customerType === 'unregistered' ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' :
@@ -194,7 +205,6 @@ const CreateInvoice = () => {
                       border: '2px solid',
                       borderColor: formData.customerType === 'registered' ? '#3b82f6' :
                                   formData.customerType === 'unregistered' ? '#f59e0b' : '#10b981',
-                      borderRadius: '8px',
                       fontWeight: '600'
                     }}
                   >
@@ -214,32 +224,40 @@ const CreateInvoice = () => {
                     value={formData.customerName}
                     readOnly
                     placeholder="Auto-filled from customer"
-                    style={{ background: '#f3f4f6' }}
+                    className="barcode-input"
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="invoiceDate">Invoice Date *</label>
-                  <input
-                    type="date"
-                    id="invoiceDate"
-                    name="invoiceDate"
-                    value={formData.invoiceDate}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Calendar size={18} />
+                    <input
+                      type="date"
+                      id="invoiceDate"
+                      name="invoiceDate"
+                      value={formData.invoiceDate}
+                      onChange={handleChange}
+                      required
+                      className={formData.invoiceDate ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="dueDate">Due Date *</label>
-                  <input
-                    type="date"
-                    id="dueDate"
-                    name="dueDate"
-                    value={formData.dueDate}
-                    onChange={handleChange}
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Calendar size={18} />
+                    <input
+                      type="date"
+                      id="dueDate"
+                      name="dueDate"
+                      value={formData.dueDate}
+                      onChange={handleChange}
+                      required
+                      className={formData.dueDate ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
@@ -309,97 +327,130 @@ const CreateInvoice = () => {
             </div>
 
             <div className="form-section">
-              <h4><User size={20} />Billing Address</h4>
+              <h4>
+                <User size={20} />
+                Billing Address
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="billingContactPerson">Contact Person *</label>
-                  <input
-                    type="text"
-                    id="billingContactPerson"
-                    name="billingContactPerson"
-                    value={formData.billingContactPerson || ''}
-                    onChange={handleChange}
-                    placeholder="Enter contact person name"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <User size={18} />
+                    <input
+                      type="text"
+                      id="billingContactPerson"
+                      name="billingContactPerson"
+                      value={formData.billingContactPerson || ''}
+                      onChange={handleChange}
+                      placeholder="Enter contact person name"
+                      required
+                      className={formData.billingContactPerson ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="billingMobile">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    id="billingMobile"
-                    name="billingMobile"
-                    value={formData.billingMobile || ''}
-                    onChange={handleChange}
-                    placeholder="Enter mobile number"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Phone size={18} />
+                    <input
+                      type="tel"
+                      id="billingMobile"
+                      name="billingMobile"
+                      value={formData.billingMobile || ''}
+                      onChange={handleChange}
+                      placeholder="Enter mobile number"
+                      required
+                      className={formData.billingMobile ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label htmlFor="billingAddress">Billing Address *</label>
-                  <textarea
-                    id="billingAddress"
-                    name="billingAddress"
-                    value={formData.billingAddress || ''}
-                    onChange={handleChange}
-                    placeholder="Enter complete billing address"
-                    rows="3"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <MapPin size={18} />
+                    <textarea
+                      id="billingAddress"
+                      name="billingAddress"
+                      value={formData.billingAddress || ''}
+                      onChange={handleChange}
+                      placeholder="Enter complete billing address"
+                      rows="3"
+                      required
+                      className={formData.billingAddress ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Truck size={20} />Shipping Address</h4>
+              <h4>
+                <Truck size={20} />
+                Shipping Address
+              </h4>
               <div className="form-row">
                 <div className="form-group">
                   <label htmlFor="shippingContactPerson">Contact Person *</label>
-                  <input
-                    type="text"
-                    id="shippingContactPerson"
-                    name="shippingContactPerson"
-                    value={formData.shippingContactPerson || ''}
-                    onChange={handleChange}
-                    placeholder="Enter contact person name"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <User size={18} />
+                    <input
+                      type="text"
+                      id="shippingContactPerson"
+                      name="shippingContactPerson"
+                      value={formData.shippingContactPerson || ''}
+                      onChange={handleChange}
+                      placeholder="Enter contact person name"
+                      required
+                      className={formData.shippingContactPerson ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
                 <div className="form-group">
                   <label htmlFor="shippingMobile">Mobile Number *</label>
-                  <input
-                    type="tel"
-                    id="shippingMobile"
-                    name="shippingMobile"
-                    value={formData.shippingMobile || ''}
-                    onChange={handleChange}
-                    placeholder="Enter mobile number"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <Phone size={18} />
+                    <input
+                      type="tel"
+                      id="shippingMobile"
+                      name="shippingMobile"
+                      value={formData.shippingMobile || ''}
+                      onChange={handleChange}
+                      placeholder="Enter mobile number"
+                      required
+                      className={formData.shippingMobile ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label htmlFor="shippingAddress">Shipping Address *</label>
-                  <textarea
-                    id="shippingAddress"
-                    name="shippingAddress"
-                    value={formData.shippingAddress || ''}
-                    onChange={handleChange}
-                    placeholder="Enter complete shipping address"
-                    rows="3"
-                    required
-                  />
+                  <div className="input-with-icon">
+                    <MapPin size={18} />
+                    <textarea
+                      id="shippingAddress"
+                      name="shippingAddress"
+                      value={formData.shippingAddress || ''}
+                      onChange={handleChange}
+                      placeholder="Enter complete shipping address"
+                      rows="3"
+                      required
+                      className={formData.shippingAddress ? 'filled' : ''}
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
             <div className="form-section">
-              <h4><Calendar size={20} />Additional Information</h4>
+              <h4>
+                <Calendar size={20} />
+                Additional Information
+              </h4>
               <div className="form-row">
-                <div className="form-group">
+                <div className="form-group full-width">
                   <label htmlFor="notes">Notes</label>
                   <textarea
                     id="notes"
@@ -408,6 +459,7 @@ const CreateInvoice = () => {
                     onChange={handleChange}
                     placeholder="Add any additional notes..."
                     rows="3"
+                    className={formData.notes ? 'filled' : ''}
                   />
                 </div>
               </div>
@@ -436,6 +488,7 @@ const CreateInvoice = () => {
               type="button"
               className="btn btn-secondary"
               onClick={() => navigate('/dashboard/billing/invoice')}
+              disabled={loading}
             >
               Cancel
             </button>
