@@ -53,4 +53,66 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Get single product
+router.get('/:id', async (req, res) => {
+  try {
+    const result = await docClient.send(new GetCommand({
+      TableName: process.env.PRODUCTS_TABLE,
+      Key: { id: req.params.id }
+    }));
+    
+    if (result.Item) {
+      res.json({ success: true, data: result.Item });
+    } else {
+      res.status(404).json({ success: false, error: 'Product not found' });
+    }
+  } catch (error) {
+    console.error('Error fetching product:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch product' });
+  }
+});
+
+// Update product
+router.put('/:id', async (req, res) => {
+  try {
+    const { name, category, barcode, quantity, price } = req.body;
+    
+    const result = await docClient.send(new UpdateCommand({
+      TableName: process.env.PRODUCTS_TABLE,
+      Key: { id: req.params.id },
+      UpdateExpression: 'SET #name = :name, category = :category, barcode = :barcode, quantity = :quantity, price = :price, updatedAt = :updatedAt',
+      ExpressionAttributeNames: { '#name': 'name' },
+      ExpressionAttributeValues: {
+        ':name': name,
+        ':category': category,
+        ':barcode': barcode,
+        ':quantity': parseInt(quantity),
+        ':price': parseFloat(price),
+        ':updatedAt': new Date().toISOString()
+      },
+      ReturnValues: 'ALL_NEW'
+    }));
+
+    res.json({ success: true, data: result.Attributes });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    res.status(500).json({ success: false, error: 'Failed to update product' });
+  }
+});
+
+// Delete product
+router.delete('/:id', async (req, res) => {
+  try {
+    await docClient.send(new DeleteCommand({
+      TableName: process.env.PRODUCTS_TABLE,
+      Key: { id: req.params.id }
+    }));
+    
+    res.json({ success: true, message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete product' });
+  }
+});
+
 module.exports = router;
