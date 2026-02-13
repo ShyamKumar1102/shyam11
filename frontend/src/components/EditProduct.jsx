@@ -27,7 +27,7 @@ const EditProduct = () => {
       if (result.success && result.data) {
         const product = result.data;
         setFormData({
-          id: product.id || '',
+          id: id,
           name: product.name || '',
           category: product.category || 'A',
           barcode: product.barcode || '',
