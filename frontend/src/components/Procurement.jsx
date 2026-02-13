@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Search, TrendingUp, Calendar, DollarSign, Package, ShoppingCart, Eye, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { orderService } from '../services/productService';
+import { purchaseOrderService } from '../services/billingService';
 import ViewModal from './ViewModal';
 import StatusBadge from './StatusBadge';
 import Badge from './Badge';
@@ -31,19 +33,12 @@ const Procurement = () => {
 
   const fetchOrders = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_URL}/orders`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await orderService.getOrders();
+      if (result.success) {
+        setOrders(Array.isArray(result.data) ? result.data : []);
+      } else {
+        setOrders([]);
       }
-      const data = await response.json();
-      setOrders(Array.isArray(data) ? data : []);
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -54,19 +49,12 @@ const Procurement = () => {
 
   const fetchPurchaseOrders = async () => {
     try {
-      const token = localStorage.getItem('authToken');
-      const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_URL}/purchase-orders`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      const result = await purchaseOrderService.getPurchaseOrders();
+      if (result.success) {
+        setPurchaseOrders(Array.isArray(result.data) ? result.data : []);
+      } else {
+        setPurchaseOrders([]);
       }
-      const data = await response.json();
-      setPurchaseOrders(Array.isArray(data) ? data : []);
       setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching purchase orders:', error);
