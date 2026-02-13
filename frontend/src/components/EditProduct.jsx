@@ -6,7 +6,7 @@ import { productService } from '../services/productService';
 const EditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -21,26 +21,29 @@ const EditProduct = () => {
   }, [id]);
 
   const fetchProduct = async () => {
+    setLoading(true);
     try {
       const result = await productService.getProduct(id);
-      if (result.success) {
+      if (result.success && result.data) {
         const product = result.data;
         setFormData({
           id: product.id || '',
           name: product.name || '',
           category: product.category || 'A',
           barcode: product.barcode || '',
-          quantity: product.quantity ? product.quantity.toString() : '0',
-          price: product.price ? product.price.toString() : '0'
+          quantity: product.quantity !== undefined ? product.quantity.toString() : '0',
+          price: product.price !== undefined ? product.price.toString() : '0'
         });
       } else {
-        alert(result.error || 'Failed to fetch product');
+        alert(result.error || 'Product not found');
         navigate('/dashboard/products');
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      alert('Failed to fetch product');
+      alert('Failed to load product. Please try again.');
       navigate('/dashboard/products');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,9 +55,9 @@ const EditProduct = () => {
       const productData = {
         name: formData.name,
         category: formData.category,
-        barcode: formData.barcode,
-        quantity: parseInt(formData.quantity),
-        price: parseFloat(formData.price)
+        barcode: formData.barcode || '',
+        quantity: parseInt(formData.quantity) || 0,
+        price: parseFloat(formData.price) || 0
       };
 
       const result = await productService.updateProduct(id, productData);
@@ -64,11 +67,11 @@ const EditProduct = () => {
         navigate('/dashboard/products');
       } else {
         alert(result.error || 'Failed to update product');
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error updating product:', error);
-      alert('Failed to update product');
-    } finally {
+      alert('Failed to update product. Please try again.');
       setLoading(false);
     }
   };
@@ -80,6 +83,14 @@ const EditProduct = () => {
       [name]: value
     }));
   };
+
+  if (loading) {
+    return (
+      <div className="page-container">
+        <div className="loading">Loading product...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
