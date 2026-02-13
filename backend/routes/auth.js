@@ -86,7 +86,7 @@ router.post('/register', async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'fallback-secret-change-in-production',
-      { expiresIn: '24h' }
+      { expiresIn: '30d' }
     );
     
     console.log('User registered successfully:', user.email);
@@ -156,7 +156,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'fallback-secret-change-in-production',
-      { expiresIn: '24h' }
+      { expiresIn: '30d' }
     );
     
     console.log('User logged in successfully:', user.email);

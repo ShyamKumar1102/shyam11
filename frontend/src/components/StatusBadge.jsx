@@ -13,9 +13,14 @@ const StatusBadge = ({ status, children, className = '' }) => {
       return 'success';
     }
     
-    // Orange - Medium/Normal/Warning
-    if (['in transit', 'out for delivery', 'warning', 'medium', 'normal', 'pending', 'processing'].includes(statusLower)) {
+    // Yellow - Pending/In Transit
+    if (['in transit', 'pending', 'processing'].includes(statusLower)) {
       return 'warning';
+    }
+    
+    // Orange - Out for Delivery
+    if (['out for delivery', 'warning', 'medium', 'normal'].includes(statusLower)) {
+      return 'orange';
     }
     
     // Red - Low/Bad/Critical/Danger

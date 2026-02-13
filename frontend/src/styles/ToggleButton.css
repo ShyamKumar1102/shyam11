@@ -75,26 +75,16 @@ input:checked + .toggle-slider:hover {
   margin-left: 0.75rem;
   padding: 0.5rem 1rem;
   border-radius: 1.5rem;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  backdrop-filter: blur(10px);
-  border: 2px solid transparent;
-  background-clip: padding-box;
 }
 
 .toggle-status.active {
-  background: linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%);
+  background: #22c55e;
   color: white;
-  box-shadow: 
-    0 4px 20px rgba(16, 185, 129, 0.4),
-    0 0 0 1px rgba(16, 185, 129, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  animation: activeGlow 2s ease-in-out infinite alternate;
-  transform: scale(1.02);
+  border: 2px solid #22c55e;
 }
 
 .toggle-status.active::before {
@@ -102,24 +92,13 @@ input:checked + .toggle-slider:hover {
 }
 
 .toggle-status.active::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: shimmer 2s infinite;
+  display: none;
 }
 
 .toggle-status.inactive {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 50%, #b91c1c 100%);
+  background: #ef4444;
   color: white;
-  box-shadow: 
-    0 4px 20px rgba(239, 68, 68, 0.4),
-    0 0 0 1px rgba(239, 68, 68, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  animation: inactiveGlow 2s ease-in-out infinite alternate;
+  border: 2px solid #ef4444;
 }
 
 .toggle-status.inactive::before {
@@ -127,93 +106,19 @@ input:checked + .toggle-slider:hover {
 }
 
 .toggle-status.inactive::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 3s infinite;
-}
-
-@keyframes activeGlow {
-  0% { 
-    box-shadow: 
-      0 4px 20px rgba(16, 185, 129, 0.4),
-      0 0 0 1px rgba(16, 185, 129, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-  100% { 
-    box-shadow: 
-      0 6px 30px rgba(16, 185, 129, 0.6),
-      0 0 0 2px rgba(16, 185, 129, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-@keyframes inactiveGlow {
-  0% { 
-    box-shadow: 
-      0 4px 20px rgba(239, 68, 68, 0.4),
-      0 0 0 1px rgba(239, 68, 68, 0.1),
-      inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  }
-  100% { 
-    box-shadow: 
-      0 6px 30px rgba(239, 68, 68, 0.6),
-      0 0 0 2px rgba(239, 68, 68, 0.2),
-      inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-}
-
-@keyframes activePulse {
-  0%, 100% { 
-    opacity: 1;
-    transform: scale(1);
-    text-shadow: 0 0 8px rgba(110, 231, 183, 0.8);
-  }
-  50% { 
-    opacity: 0.7;
-    transform: scale(1.2);
-    text-shadow: 0 0 12px rgba(110, 231, 183, 1);
-  }
-}
-
-@keyframes inactivePulse {
-  0%, 100% { 
-    opacity: 1;
-    transform: scale(1);
-    text-shadow: 0 0 8px rgba(252, 165, 165, 0.8);
-  }
-  50% { 
-    opacity: 0.6;
-    transform: scale(1.1);
-    text-shadow: 0 0 10px rgba(252, 165, 165, 1);
-  }
-}
-
-@keyframes shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
+  display: none;
 }
 
 .toggle-status:hover {
-  transform: scale(1.05) translateY(-1px);
+  transform: none;
 }
 
 .toggle-status.active:hover {
-  box-shadow: 
-    0 8px 40px rgba(16, 185, 129, 0.5),
-    0 0 0 3px rgba(16, 185, 129, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 .toggle-status.inactive:hover {
-  box-shadow: 
-    0 8px 40px rgba(239, 68, 68, 0.5),
-    0 0 0 3px rgba(239, 68, 68, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 /* Form integration */

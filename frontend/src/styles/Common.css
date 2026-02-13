@@ -149,6 +149,20 @@
   color: #374151;
 }
 
+.data-table td > *:not(.badge):not(.status-badge):not(.category-badge):not(.item-info):not(.btn-icon):not(.action-buttons):not(button):not(div):not(span[style]) {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+}
+
 .data-table tbody tr:hover {
   background: #f9fafb;
 }
@@ -161,9 +175,18 @@
 
 /* Item Info */
 .item-info {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
 }
 
 .item-info svg {
@@ -172,8 +195,8 @@
 }
 
 .item-info span {
-  font-weight: 500;
-  color: #1f2937;
+  font-weight: 700;
+  color: #374151;
 }
 
 /* Buttons */
@@ -602,7 +625,6 @@
   background: white;
   cursor: pointer;
   font-size: 14px;
-  transition: all 0.2s;
 }
 
 .btn-status:hover:not(:disabled) {

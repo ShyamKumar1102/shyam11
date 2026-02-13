@@ -8,70 +8,25 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border: 1px solid;
-  transition: all 0.2s ease;
+  border: 1px solid #d1d5db;
   white-space: nowrap;
+  transition: none !important;
+  box-shadow: none !important;
+  background: white;
+  color: #374151;
 }
 
-/* Blue */
-.badge-blue, .badge-info, .badge-default {
-  background: #dbeafe;
-  color: #1e40af;
-  border-color: #93c5fd;
+.badge:hover {
+  transform: none !important;
+  box-shadow: none !important;
 }
 
-/* Green - Good/High/Success */
-.badge-green, .badge-success, .badge-high, .badge-good {
-  background: #d1fae5;
-  color: #065f46;
-  border-color: #6ee7b7;
-}
-
-/* Orange - Medium/Normal/Warning */
-.badge-orange, .badge-warning, .badge-medium, .badge-normal {
-  background: #fed7aa;
-  color: #9a3412;
-  border-color: #fb923c;
-}
-
-/* Red - Low/Bad/Critical/Danger */
-.badge-red, .badge-danger, .badge-low, .badge-critical, .badge-bad {
-  background: #fecaca;
-  color: #991b1b;
-  border-color: #f87171;
-}
-
-/* Yellow */
-.badge-yellow {
-  background: #fef08a;
-  color: #854d0e;
-  border-color: #fde047;
-}
-
-/* Purple */
-.badge-purple {
-  background: #e9d5ff;
-  color: #6b21a8;
-  border-color: #d8b4fe;
-}
-
-/* Cyan */
-.badge-cyan {
-  background: #a5f3fc;
-  color: #155e75;
-  border-color: #67e8f9;
-}
-
-/* Teal */
-.badge-teal {
-  background: #99f6e4;
-  color: #115e59;
-  border-color: #5eead4;
-}
-
-/* Gray */
-.badge-gray {
-  background: #e5e7eb;
+.badge-blue, .badge-info, .badge-default,
+.badge-green, .badge-success, .badge-high, .badge-good,
+.badge-orange, .badge-warning, .badge-medium, .badge-normal,
+.badge-red, .badge-danger, .badge-low, .badge-critical, .badge-bad,
+.badge-gray, .badge-indigo, .badge-pink, .badge-purple, .badge-cyan, .badge-teal {
+  background: white;
   color: #374151;
   border-color: #d1d5db;
 }
