@@ -84,19 +84,6 @@ const AddPurchaseOrder = () => {
     }
   };
 
-  const testAPI = async () => {
-    try {
-      const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
-      const response = await fetch(`${API_URL}/purchase-orders/test`);
-      const result = await response.json();
-      console.log('API test result:', result);
-      alert('API Test: ' + result.message);
-    } catch (error) {
-      console.error('API test failed:', error);
-      alert('API test failed: ' + error.message);
-    }
-  };
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => {

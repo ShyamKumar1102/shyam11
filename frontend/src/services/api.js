@@ -11,6 +11,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 30000,
 });
 
 // Add auth token to requests
@@ -22,6 +23,19 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
+
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code === 'ECONNABORTED') {
+      console.error('Request timeout - server may be sleeping');
+    } else if (error.response?.status === 503) {
+      console.error('Service unavailable - server is starting up');
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
 export { api };
