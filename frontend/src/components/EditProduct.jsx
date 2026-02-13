@@ -26,12 +26,12 @@ const EditProduct = () => {
       if (result.success) {
         const product = result.data;
         setFormData({
-          id: product.id,
-          name: product.name,
-          category: product.category,
+          id: product.id || '',
+          name: product.name || '',
+          category: product.category || 'A',
           barcode: product.barcode || '',
-          quantity: product.quantity.toString(),
-          price: product.price.toString()
+          quantity: product.quantity ? product.quantity.toString() : '0',
+          price: product.price ? product.price.toString() : '0'
         });
       } else {
         alert(result.error || 'Failed to fetch product');
