@@ -1,10 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://shyam11-5oe6.onrender.com/api';
+const API_BASE_URL = 'https://shyam11-5oe6.onrender.com/api';
 
 console.log('=== API Configuration ===');
-console.log('VITE_API_BASE_URL from env:', import.meta.env.VITE_API_BASE_URL);
-console.log('Final API_BASE_URL:', API_BASE_URL);
+console.log('API_BASE_URL:', API_BASE_URL);
 console.log('========================');
 
 const api = axios.create({
