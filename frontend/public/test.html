@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+</head>
+<body>
+    <h1>API Connection Test</h1>
+    <button onclick="testAPI()">Test API</button>
+    <pre id="result"></pre>
+    
+    <script>
+        const API_URL = 'https://shyam11-5oe6.onrender.com/api';
+        
+        async function testAPI() {
+            const result = document.getElementById('result');
+            result.textContent = 'Testing...';
+            
+            try {
+                // Test health endpoint
+                const healthRes = await fetch(`${API_URL}/health`);
+                const health = await healthRes.json();
+                result.textContent = `Health: ${JSON.stringify(health, null, 2)}\n\n`;
+                
+                // Test register
+                const registerRes = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: 'Test User',
+                        email: 'test@test.com',
+                        password: 'test123'
+                    })
+                });
+                const register = await registerRes.json();
+                result.textContent += `Register: ${JSON.stringify(register, null, 2)}`;
+            } catch (error) {
+                result.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,8 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://shyam11-5oe6.onrender.com/api';
 
-console.log('API Base URL:', API_BASE_URL); // Debug log
+console.log('API Base URL:', API_BASE_URL);
+console.log('All env vars:', import.meta.env);
 
 const api = axios.create({
   baseURL: API_BASE_URL,
